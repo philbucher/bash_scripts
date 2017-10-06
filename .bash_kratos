@@ -1,6 +1,5 @@
-##################################
-############# KRATOS #############
-##################################
+# Philipp Bucher
+# This file contains functions used in combination with Kratos
 
 export PYTHONPATH=~/software/Kratos:$PYTHONPATH
 compilekratos() { # has to be a function bcs vs code doesn't recognize it otherwise
