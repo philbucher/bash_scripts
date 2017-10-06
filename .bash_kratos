@@ -2,14 +2,12 @@
 ############# KRATOS #############
 ##################################
 
-# Automatically update Kratos on the cluster
-alias update_kratos_CoolMUC2='ssh ga59vax2@lxlogin7.lrz.de '"'"'sh update_kratos_public.sh'"'"''
-
 export PYTHONPATH=~/software/Kratos:$PYTHONPATH
-#export LD_LIBRARY_PATH=/home/philippb/software/Kratos/libs:$LD_LIBRARY_PATH # not needed bcs of the rlink stuff in configure.sh
-#export PATH=/home/philipp/software/KRATOS/Kratos:$PATH # runkratos command
+compilekratos() { # has to be a function bcs vs code doesn't recognize it otherwise
+    kratoscompilation mpi relwdbg $1
+}
+export -f compilekratos
 
-#alias compilekratos="kratoscompilation cmake_build" # cd ~/software/Kratos/cmake_build && startCMake && startOpenMPI && \time -f%E sh configure.sh && cd -"
 alias compilekratosdebug="kratoscompilation mpi debug $1"
 alias compilekratosserial="kratoscompilation serial release $1"
 
@@ -23,23 +21,11 @@ else
     echo -e "\e[1;43mnothing to remove \e[0m"
 fi
 
-
-#if [ ! -d "$libs_dir" ]; then # TODO check if the directory is empty
-#    echo -e "\e[1;43mnothing to remove \e[0m"
-#else
-#    (rm -r "$libs_dir" && if [ -f ~/software/.kratoscompilation.info ]; then rm ~/software/.kratoscompilation.info; fi && echo -e "\e[1;43mdone \e[0m") || echo -e "\e[1;43mfailed \e[0m"
-#fi
-
 if [ ! -d "$libs_dir" ]; then
     mkdir "$libs_dir"
 fi
 }
 export -f deletekratoslibs
-
-compilekratos() { # has to be a function bcs vs code doesn't recognize it otherwise
-    kratoscompilation mpi relwdbg $1
-}
-export -f compilekratos
 
 kratoscompilation() {
     local start_time=`date +%s`
@@ -120,9 +106,6 @@ kratoscompilation() {
         echo -e "\e[1;41m Compilation Failed \e[0m"
     fi
 
-    # Old:  
-   #(\time -f%E sh configure.sh && echo "${compiled_branch}" > ~/software/.kratoscompilation.info && echo "$1" >> ~/software/.kratoscompilation.info && echo "$mode" >> ~/software/.kratoscompilation.info && echo -e "\e[1;42m Compilation Successful \e[0m") || echo -e "\e[1;41m Compilation Failed \e[0m" # compile Kratos (and measring exectuion time)
-    
     cd $base_dir                    # switch back to original folder
     
     local end_time=`date +%s`
@@ -171,35 +154,6 @@ checkbranch
      fi
 }
 export -f runkratos
-
-runkratosvalgrind() {
-# function to execute kratos in parallel with valgrind
-
-    if [[ $# = 2 ]]; then
-        echo "===== PARALLEL EXECUTION ====="
-        echo "===== VALGRIND ====="
-        echo "with $2 processes"
-        sleep 0.3
-        
-        #MPIWRAP_DEBUG=[wrapper-args]                               \
-        #LD_PRELOAD=$prefix/lib/valgrind/libmpiwrap-<platform>.so   \
-        #mpirun [mpirun-args]                                       \
-        #$prefix/bin/valgrind [valgrind-args]                       \
-        #[application] [app-args]
-        
-        #MPIWRAP_DEBUG=[wrapper-args]                                                                                   \
-        LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so      \
-        mpiexec -np $2                                                                                                 \
-        /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind                                           \
-        python3.5 $1 2> valgrindout.log
-        
-        #LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so  mpiexec -np $2 /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind python3.5 $1 2> valgrindout.log
-
-    else
-        echo "Wrong number of input arguments given"
-        return 1
-    fi
-}
 
 kratosinformation() {
 if [ ! -f ~/software/.kratoscompilation.info ]; then
@@ -291,69 +245,3 @@ startOpenMPI() { # pointing to globally used installation
     startOpenMPI_1_10_7
 }
 export -f startOpenMPI
-
-#alias startOpenMPI="source /home/philippb/software/OpenMPI/setup.sh"
-
-alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive"
-
-
-# EMPIRE
-alias startEMPIRE=". ~/software/empire/EMPIRE-Core/etc/bashrc.sh ICC" 
-
-
-
-runempirekratos() {
-    # function to execute kratos serial or in parallel
-    local start_time=`date +%s`
-
-    if [[ $# = 0 ]]; then
-        throwerror "No inputfile given"
-    fi
-    
-    local num_procs=1
-    if [[ $# = 2 ]]; then
-        num_procs = $2
-    fi
-    sleep 1 # needed such that Emperor can start its stuff
-    mpiexec -np $num_procs --ompi-server file:/home/philippb/.ompi_server.port python3.5 $1
-    local end_time=`date +%s`
-    printtime start_time end_time
-}
-export -f runempirekratos
-
-runempireemperor() {
-    local start_time=`date +%s`
-
-    if [[ $# = 0 ]]; then
-        throwerror "No inputfile given"
-        
-    elif [[ $# = 1 ]]; then
-        mpiexec -np 1 --ompi-server file:/home/philippb/.ompi_server.port Emperor $1
-        local end_time=`date +%s`
-        printtime start_time end_time
-        
-    else
-        echo "Too many input arguments given"
-        return 1
-    fi
-}
-export -f runempireemperor
-
-
-# https://stackoverflow.com/questions/17460737/linux-shell-display-something-while-a-command-is-running-in-the-background
-# usage: "(a_long_running_task) & spinner"
-spinner()
-{
-    local pid=$!
-    local delay=0.75
-    local spinstr='...'
-    echo "Loading "
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf "%s  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\n"
-    done
-    printf "    \b\b\b\b"
-}

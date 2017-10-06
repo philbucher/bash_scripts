@@ -29,7 +29,7 @@ alias salome="~/software/SALOME/SALOME-8.3.0-UB16.04/salome"
 
 alias lrz_sync_share="sh /usr/share/LRZ_Sync_Share/LRZ_Sync_Share-Client.sh"
 
-alias valgrind='/home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind'
+alias valgrind='~/software/Valgrind/valgrind-3.12.0_install/bin/valgrind'
 
 alias pythonconsole="ipython3"
 
@@ -63,11 +63,5 @@ export -f ompsetthreads
 export OMP_NUM_THREADS=1 # setting the number of OMP threads to one on shell startup
 
 alias ompgetthreads='echo "Using $OMP_NUM_THREADS OpenMP threads"'
-
-# Load Alias definitions for software (Kratos, Empire, ...).
-
-if [ -f ~/.bash_software ]; then
-    . ~/.bash_software
-fi
 
 
