@@ -11,7 +11,7 @@ alias compilekratosdebug="kratoscompilation mpi debug $1"
 alias compilekratosserial="kratoscompilation serial release $1"
 
 deletekratoslibs() {
-local libs_dir="~/software/Kratos/libs"
+local libs_dir="${HOME}/software/Kratos/libs"
 echo -n -e "\e[1;43m Removing Kratos libraries ... \e[0m"
 
 if find "$libs_dir" -mindepth 1 -print -quit | grep -q .; then
