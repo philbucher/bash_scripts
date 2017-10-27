@@ -120,6 +120,7 @@ kratoscompilation() {
 
     getactivebranch compiled_branch
 
+    echo -e "compiling Kratos Path: \t\e[1;48;5;4m ${KRATOS_PATH_ENV} \e[0m"
     echo -n "compiling branch: "
     echo -e "\t\e[1;44m ${compiled_branch} \e[0m"
     
@@ -206,6 +207,7 @@ kratosinformation() {
         mode="$(sed '3q;d' ${KRATOS_PATH_ENV}/.kratoscompilation.info)"
 
         echo -e "\e[1mCompiled Configuration Information: \e[0m"
+        echo -e "Kratos Path: \t\e[1;48;5;4m ${KRATOS_PATH_ENV} \e[0m"
         echo -e "Branch: \t\e[1;48;5;4m $branch \e[0m"
         echo -e "Version: \t\e[1;48;5;4m $version \e[0m"
         if [[ $mode == "Debug" ]]; then
