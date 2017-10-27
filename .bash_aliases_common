@@ -1,6 +1,11 @@
 # Philipp Bucher
 # This file contains "convenience" aliases that I use across systems
 
+# This should go into the global .bash_aliases:
+# . ~/.bash_scripts/.bash_aliases_common
+# . ~/.bash_scripts/.bash_software
+# . ~/.bash_scripts/.bash_kratos
+
 #******** overriding stuff from .bashrc****************************************
 # enlarge history
 HISTSIZE=5000 #1000
@@ -9,7 +14,7 @@ HISTFILESIZE=10000 #2000
 alias ll='ls -alFh' # display the file sizes in readable format
 
 # change colors
-PS1='${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u:\[\033[01;34m\]\w\[\033[00m\]\$ '
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u:\[\033[01;34m\]\w\[\033[00m\]\$ '
 #******************************************************************************
 
 # System aliases
