@@ -1,32 +1,6 @@
 # Philipp Bucher
 # This file contains aliases for other software
 
-# Program aliases
-alias formulacollection='evince ~/Dropbox/utilities/FormulaCollection/formulaCollection.pdf &'
-
-alias gid13="~/software/GiD/gid13.0.2-x64/gid"
-alias gid13d="~/software/GiD/gid13.1.8d-x64/gid"
-
-alias salome="~/software/SALOME/SALOME-8.3.0-UB16.04/salome"
-
-alias lrz_sync_share="sh /usr/share/LRZ_Sync_Share/LRZ_Sync_Share-Client.sh"
-
-alias valgrind='~/software/Valgrind/valgrind-3.12.0_install/bin/valgrind'
-
-alias pythonconsole="ipython3"
-
-alias dropboxsync="~/scripts/dropbox.sh"
-
-alias backup_lrz="/opt/tivoli/tsm/client/ba/bin/dsmj"
-
-alias startOpenMPIserver="ompi-server -r ~/.ompi_server.port && echo Started ompi server"
-
-alias salome_kratos_converter="python3 ~/software/SALOME_Kratos_Converter/converter_salome_kratos.py"
-
-alias connect_headphones="python3 ~/scripts/a2pd.py 04:5D:4B:16:56:EC"
-#https://gist.github.com/pylover/d68be364adac5f946887b85e6ed6e7ae
-#https://askubuntu.com/questions/910501/udev-rule-to-run-python-script/912838#912838
-
 # remove annoying warnings in terminal
 alias calculator='gnome-calculator &> /dev/null'
 alias gedit='gedit &> /dev/null'
@@ -46,16 +20,56 @@ export OMP_NUM_THREADS=1 # setting the number of OMP threads to one on shell sta
 
 alias ompgetthreads='echo "Using $OMP_NUM_THREADS OpenMP threads"'
 
-# Automatically update Kratos on the cluster
-alias update_kratos_CoolMUC2='ssh ga59vax2@lxlogin7.lrz.de '"'"'sh update_kratos_public.sh'"'"''
+
+# Program aliases
+alias formulacollection='evince ~/Dropbox/utilities/FormulaCollection/formulaCollection.pdf &'
+
+alias gid13="~/software/GiD/gid13.0.2-x64/gid"
+alias gid13d="~/software/GiD/gid13.1.8d-x64/gid"
+
+alias salome="~/software/SALOME/SALOME-8.3.0-UB16.04/salome"
+alias salome_kratos_converter="python3 ~/software/SALOME_Kratos_Converter/converter_salome_kratos.py"
+
+alias valgrind='~/software/Valgrind/valgrind-3.12.0_install/bin/valgrind'
+
+alias pythonconsole="ipython3"
+
+alias startOpenMPIserver="ompi-server -r ~/.ompi_server.port && echo Started ompi server"
+
+alias connect_headphones="python3 ~/scripts/a2pd.py 04:5D:4B:16:56:EC"
+
+alias startkratosproduction="setupkratosenv ~/software/Kratos"
+alias startkratosdevelopment="setupkratosenv ~/software/Kratos_dev"
+alias startkratostestingr="setupkratosenv ~/software/Kratos_testing"
+
+alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive"
+#https://gist.github.com/pylover/d68be364adac5f946887b85e6ed6e7ae
+#https://askubuntu.com/questions/910501/udev-rule-to-run-python-script/912838#912838
+
 
 runkratosvalgrind() {
 # function to execute kratos in parallel with valgrind
 
-    if [[ $# = 2 ]]; then
-        echo "===== PARALLEL EXECUTION ====="
+    checkforkratos
+
+    local valgrind_options="--leak-check=full --show-leak-kinds=all --track-origins=yes"
+    eval local valgrind_out_file="valgrindout_$1.log"
+
+    if [[ $# = 1 ]]; then
+        echo "===== SERIAL EXECUTION ====="
         echo "===== VALGRIND ====="
+        echo "with options: $valgrind_options"
+        echo "Valgrind output written to \"$valgrind_out_file\""
+        sleep 0.3
+        
+        valgrind $valgrind_options python3 $1 2> $valgrind_out_file
+
+    elif [[ $# = 2 ]]; then
+        echo "===== PARALLEL EXECUTION ====="
         echo "with $2 processes"
+        echo "===== VALGRIND ====="
+        echo "with options: $valgrind_options"
+        echo "Valgrind output written to \"$valgrind_out_file\""
         sleep 0.3
         
         #MPIWRAP_DEBUG=[wrapper-args]                               \
@@ -64,30 +78,26 @@ runkratosvalgrind() {
         #$prefix/bin/valgrind [valgrind-args]                       \
         #[application] [app-args]
         
-        #MPIWRAP_DEBUG=[wrapper-args]                                                                                   \
-        LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so      \
-        mpiexec -np $2                                                                                                 \
-        /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind                                           \
-        python3.5 $1 2> valgrindout.log
+        #MPIWRAP_DEBUG=[wrapper-args]                                                                                  \
+        LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so    \
+        mpiexec -np $2                                                                                                \
+        /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind  $valgrind_options                      \
+        python3 $1 2> $valgrind_out_file 
         
-        #LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so  mpiexec -np $2 /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind python3.5 $1 2> valgrindout.log
-
     else
         echo "Wrong number of input arguments given"
         return 1
     fi
 }
 
-alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive"
-
 
 # EMPIRE
 alias startEMPIRE=". ~/software/empire/EMPIRE-Core/etc/bashrc.sh ICC" 
 
-
-
 runempirekratos() {
     # function to execute kratos serial or in parallel
+    checkforkratos
+
     local start_time=`date +%s`
 
     if [[ $# = 0 ]]; then
@@ -99,7 +109,7 @@ runempirekratos() {
         num_procs = $2
     fi
     sleep 1 # needed such that Emperor can start its stuff
-    mpiexec -np $num_procs --ompi-server file:/home/philippb/.ompi_server.port python3.5 $1
+    mpiexec -np $num_procs --ompi-server file:/home/philippb/.ompi_server.port python3 $1
     local end_time=`date +%s`
     printtime start_time end_time
 }
@@ -122,22 +132,3 @@ runempireemperor() {
     fi
 }
 export -f runempireemperor
-
-
-# https://stackoverflow.com/questions/17460737/linux-shell-display-something-while-a-command-is-running-in-the-background
-# usage: "(a_long_running_task) & spinner"
-spinner()
-{
-    local pid=$!
-    local delay=0.75
-    local spinstr='...'
-    echo "Loading "
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf "%s  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\n"
-    done
-    printf "    \b\b\b\b"
-}

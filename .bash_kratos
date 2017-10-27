@@ -1,32 +1,65 @@
 # Philipp Bucher
 # This file contains functions used in combination with Kratos
 
-export PYTHONPATH=~/software/Kratos:$PYTHONPATH
-compilekratos() { # has to be a function bcs vs code doesn't recognize it otherwise
-    kratoscompilation mpi relwdbg $1
-}
-export -f compilekratos
+alias compilekratos="kratoscompilation serial release $1"
+alias compilekratosrelwdbg="kratoscompilation serial relwdbg $1"
+alias compilekratosdebug="kratoscompilation serial debug $1"
+alias compilekratosfulldebug="kratoscompilation serial fulldebug $1"
 
-alias compilekratosdebug="kratoscompilation mpi debug $1"
-alias compilekratosserial="kratoscompilation serial release $1"
+alias compilekratosmpi="kratoscompilation mpi release $1"
+alias compilekratosmpirelwdbg="kratoscompilation mpi relwdbg $1"
+alias compilekratosmpidebug="kratoscompilation mpi debug $1"
+alias compilekratosmpifulldebug="kratoscompilation mpi fulldebug $1"
+
+
+setupkratosenv() {
+    if [[ $# = 1 ]]; then
+        if [[ -z "${KRATOS_PATH_ENV}" ]]; then
+            KRATOS_PATH_ENV=$1
+            export PYTHONPATH=$1:$PYTHONPATH
+            printinfo "Started Kratos $1"
+        else
+            throwerror "Kratos was already set at $KRATOS_PATH_ENV!"
+            return 1
+        fi
+    else
+        echo "Please provide 1 argument only!"
+        return 1
+    fi  
+} 
+export -f setupkratosenv
+
+
+checkforkratos() {
+if [[ -z "${KRATOS_PATH_ENV}" ]]; then
+    throwerror "The Kratos Environment is not set!"
+fi
+}
+export -f checkforkratos
+
 
 deletekratoslibs() {
-local libs_dir="${HOME}/software/Kratos/libs"
-echo -n -e "\e[1;43m Removing Kratos libraries ... \e[0m"
+    checkforkratos
 
-if find "$libs_dir" -mindepth 1 -print -quit | grep -q .; then
-    (rm -r "$libs_dir" && if [ -f ~/software/.kratoscompilation.info ]; then rm ~/software/.kratoscompilation.info; fi && echo -e "\e[1;43mdone \e[0m") || echo -e "\e[1;43mfailed \e[0m"
-else
-    echo -e "\e[1;43mnothing to remove \e[0m"
-fi
+    local libs_dir="${KRATOS_PATH_ENV}/libs"
+    echo -n -e "\e[1;43m Removing Kratos libraries ... \e[0m"
 
-if [ ! -d "$libs_dir" ]; then
-    mkdir "$libs_dir"
-fi
+    if find "$libs_dir" -mindepth 1 -print -quit | grep -q .; then
+        (rm -r "$libs_dir" && if [ -f ${KRATOS_PATH_ENV}/.kratoscompilation.info ]; then rm ${KRATOS_PATH_ENV}/.kratoscompilation.info; fi && echo -e "\e[1;43mdone \e[0m") || echo -e "\e[1;43mfailed \e[0m"
+    else
+        echo -e "\e[1;43mnothing to remove \e[0m"
+    fi
+
+    if [ ! -d "$libs_dir" ]; then
+        mkdir "$libs_dir"
+    fi
 }
 export -f deletekratoslibs
 
+
 kratoscompilation() {
+    checkforkratos
+
     local start_time=`date +%s`
     if [[ $# < 2 ]]; then
         echo "Not enough input arguments"
@@ -35,14 +68,14 @@ kratoscompilation() {
     
     local base_dir=$(pwd)
     
-    cp ~/software/configure_sh_general.txt ~/software/.configure_sh_temp.txt
+    cp ${KRATOS_PATH_ENV}/configure_sh_general.txt ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
     
     if [[ $1 == "serial" ]]; then
-        sed -i "s/-DMETIS_APPLICATION=XXX/-DMETIS_APPLICATION=OFF/g" ~/software/.configure_sh_temp.txt
-        sed -i "s/DTRILINOS_APPLICATION=XXX/DTRILINOS_APPLICATION=OFF/g" ~/software/.configure_sh_temp.txt
+        sed -i "s/-DMETIS_APPLICATION=XXX/-DMETIS_APPLICATION=OFF/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        sed -i "s/DTRILINOS_APPLICATION=XXX/DTRILINOS_APPLICATION=OFF/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
     elif [[ $1 == "mpi" ]]; then
-        sed -i "s/-DMETIS_APPLICATION=XXX/-DMETIS_APPLICATION=ON/g" ~/software/.configure_sh_temp.txt
-        sed -i "s/DTRILINOS_APPLICATION=XXX/DTRILINOS_APPLICATION=ON/g" ~/software/.configure_sh_temp.txt
+        sed -i "s/-DMETIS_APPLICATION=XXX/-DMETIS_APPLICATION=ON/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        sed -i "s/DTRILINOS_APPLICATION=XXX/DTRILINOS_APPLICATION=ON/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         startOpenMPI
     else 
        echo "Input argument 1 - \"$1\" - not valid, choose \"serial\" or \"mpi\""
@@ -50,24 +83,28 @@ kratoscompilation() {
     fi
 
     if [[ $2 == "release" ]]; then
-        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=Release/g" ~/software/.configure_sh_temp.txt
+        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=Release/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         local mode="Release"
     elif [[ $2 == "debug" ]]; then
-        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=Debug/g" ~/software/.configure_sh_temp.txt
+        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=Debug/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         local mode="Debug"
+    elif [[ $2 == "fulldebug" ]]; then
+        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=FullDebug/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        local mode="FullDebug"
     elif [[ $2 == "relwdbg" ]]; then
-        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=RelWithDebInfo/g" ~/software/.configure_sh_temp.txt
+        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=RelWithDebInfo/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         local mode="RelWithDebInfo"
     else 
-       echo "Input argument 2 - \"$2\" - not valid, choose \"release\", \"debug\", \"relwdbg\""
+       echo "Input argument 2 - \"$2\" - not valid, choose \"release\", \"debug\", \"relwdbg\", \"fulldebug\""
        return 0
     fi
 
     local cmake_folder="cmake_build_$1_$2"
-    eval local build_dir="~/software/Kratos/$cmake_folder"
+    eval local build_dir="${KRATOS_PATH_ENV}/$cmake_folder"
     
     if [ ! -d "$build_dir" ]; then
-        throwerror "Directory \"$cmake_folder\"does not exist"
+        mkdir $build_dir
+        printinfo "Build Directory $build_dir was created"
     fi
     
     if [[ $3 == "clean" ]]; then
@@ -78,8 +115,8 @@ kratoscompilation() {
 
     cd "$build_dir" &> /dev/null  
     
-    cp ~/software/.configure_sh_temp.txt configure.sh  
-    rm ~/software/.configure_sh_temp.txt
+    cp ${KRATOS_PATH_ENV}/.configure_sh_temp.txt configure.sh  
+    rm ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
 
     getactivebranch compiled_branch
 
@@ -97,9 +134,9 @@ kratoscompilation() {
     deletekratoslibs    
     
     if \time -f%E -o ~/.tmp.txt sh configure.sh ; then
-        echo "${compiled_branch}" > ~/software/.kratoscompilation.info 
-        echo "$1" >> ~/software/.kratoscompilation.info 
-        echo "$mode" >> ~/software/.kratoscompilation.info 
+        echo "${compiled_branch}" > ${KRATOS_PATH_ENV}/.kratoscompilation.info 
+        echo "$1" >> ${KRATOS_PATH_ENV}/.kratoscompilation.info 
+        echo "$mode" >> ${KRATOS_PATH_ENV}/.kratoscompilation.info 
         echo -e "\e[1;42m Compilation Successful \e[0m"
     else
         echo -e "\e[1;41m Compilation Failed \e[0m"
@@ -113,11 +150,14 @@ kratoscompilation() {
 
 export -f kratoscompilation
 
+
 runkratos() {
-# function to execute kratos serial or in parallel
-local start_time=`date +%s`
-kratosinformation
-checkbranch
+    # function to execute kratos serial or in parallel
+    checkforkratos
+
+    local start_time=`date +%s`
+    kratosinformation
+    checkbranch
 
     if [[ $# = 0 ]]; then
         echo "No inputfile given"
@@ -129,7 +169,7 @@ checkbranch
         fi
         echo "===== SERIAL EXECUTION ====="
         sleep 2
-        python3.5 $1
+        python3 $1
         
         local end_time=`date +%s`
         printtime start_time end_time
@@ -142,7 +182,7 @@ checkbranch
         echo "with $2 processes"
         startOpenMPI
         sleep 2
-        mpiexec -np $2 python3.5 $1
+        mpiexec -np $2 python3 $1
     
         local end_time=`date +%s`
         printtime start_time end_time
@@ -154,30 +194,35 @@ checkbranch
 }
 export -f runkratos
 
+
 kratosinformation() {
-if [ ! -f ~/software/.kratoscompilation.info ]; then
-    throwerror "No Kratos Libraries available!"
-else
-    branch="$(sed '1q;d' ~/software/.kratoscompilation.info)"
-    version="$(sed '2q;d' ~/software/.kratoscompilation.info)"
-    mode="$(sed '3q;d' ~/software/.kratoscompilation.info)"
+    checkforkratos
 
-    echo -e "\e[1mCompiled Configuration Information: \e[0m"
-    echo -e "Branch: \t\e[1;48;5;4m $branch \e[0m"
-    echo -e "Version: \t\e[1;48;5;4m $version \e[0m"
-    if [[ $mode == "Debug" ]]; then
-        echo -e "Mode: \t\t\e[1;48;5;37m $mode \e[0m"
+    if [ ! -f ${KRATOS_PATH_ENV}/.kratoscompilation.info ]; then
+        throwerror "No Kratos Libraries available!"
     else
-        echo -e "Mode: \t\t\e[1;48;5;4m $mode \e[0m"
-    fi
-fi
+        branch="$(sed '1q;d' ${KRATOS_PATH_ENV}/.kratoscompilation.info)"
+        version="$(sed '2q;d' ${KRATOS_PATH_ENV}/.kratoscompilation.info)"
+        mode="$(sed '3q;d' ${KRATOS_PATH_ENV}/.kratoscompilation.info)"
 
+        echo -e "\e[1mCompiled Configuration Information: \e[0m"
+        echo -e "Branch: \t\e[1;48;5;4m $branch \e[0m"
+        echo -e "Version: \t\e[1;48;5;4m $version \e[0m"
+        if [[ $mode == "Debug" ]]; then
+            echo -e "Mode: \t\t\e[1;48;5;37m $mode \e[0m"
+        else
+            echo -e "Mode: \t\t\e[1;48;5;4m $mode \e[0m"
+        fi
+    fi
 }
 export -f kratosinformation
 
+
 checkbranch() {
+    checkforkratos
+
     getactivebranch active_branch
-    local compiled_branch="$(sed '1q;d' ~/software/.kratoscompilation.info)"
+    local compiled_branch="$(sed '1q;d' ${KRATOS_PATH_ENV}/.kratoscompilation.info)"
     
     if [[ $active_branch != $compiled_branch ]]; then
         echo -e "\n\t Compiled branch: $compiled_branch"
@@ -187,8 +232,11 @@ checkbranch() {
 }
 export -f checkbranch
 
+
 getactivebranch() {
-    cd ~/software/Kratos
+    checkforkratos
+
+    cd ${KRATOS_PATH_ENV}
     local branch="$(git branch | grep \* | cut -d ' ' -f2)"
     cd - &> /dev/null
     local  __resultvar=$1
@@ -196,10 +244,10 @@ getactivebranch() {
 }
 export -f getactivebranch
 
+
 printinfo() {
     local info2print="Info: "$1
-    echo -e "\e[1;48;5;105m $info2print \e[0m\n"
-    sleep 2
+    echo -e "\e[1;48;5;105m $info2print \e[0m"
 }
 
 printwarning() {
