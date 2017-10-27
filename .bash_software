@@ -40,7 +40,7 @@ alias connect_headphones="python3 ~/scripts/a2pd.py 04:5D:4B:16:56:EC"
 
 alias startkratosproduction="setupkratosenv ~/software/Kratos"
 alias startkratosdevelopment="setupkratosenv ~/software/Kratos_dev"
-alias startkratostestingr="setupkratosenv ~/software/Kratos_testing"
+alias startkratosaux="setupkratosenv ~/software/Kratos_testing"
 
 alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive"
 #https://gist.github.com/pylover/d68be364adac5f946887b85e6ed6e7ae
