@@ -1,0 +1,48 @@
+#!/bin/sh
+rm CMakeCache.txt
+rm *.cmake
+rm -rf CMakeFiles
+
+cmake ..                                                                                                \
+-DCMAKE_C_COMPILER=gcc                                                                                  \
+-DCMAKE_CXX_COMPILER=g++                                                                                \
+-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -std=c++11 -march=native -ftree-vectorize -funroll-loops -ffast-math -Wall -Wno-unused-local-typedefs" \
+-DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -march=native -funroll-loops -ffast-math -Wall -Wno-unused-local-typedefs" \
+-DCMAKE_BUILD_TYPE=XXX                                                                       \
+-DCMAKE_INSTALL_RPATH="${HOME}/software/Kratos/libs"                                                    \
+-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE                                                                \
+-DPYTHON_LIBRARY="/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/libpython3.5m.so"                     \
+-DPYTHON_INCLUDE_DIR="/usr/include/python3.5"                                                           \
+-DINSTALL_EMBEDDED_PYTHON=ON                                                                            \
+-DBOOST_ROOT="${HOME}/software/boost/boost_1_61_0_install"                                              \
+-DBLAS_LIBRARIES="/usr/lib/libblas/libblas.so"                                                          \
+-DLAPACK_LIBRARIES="/usr/lib/lapack/liblapack.so"                                                       \
+-DINCOMPRESSIBLE_FLUID_APPLICATION=OFF                                                                   \
+-DCONTACT_STRUCTURAL_MECHANICS_APPLICATION=OFF                                                                   \
+-DMESHING_APPLICATION=ON                                                                                \
+-DEXTERNAL_SOLVERS_APPLICATION=ON                                                                       \
+-DINCLUDE_FEAST=ON                                                                                      \
+-DMAPPING_APPLICATION=ON                                                                                \
+-DPFEM_APPLICATION=OFF                                                                                  \
+-DSTRUCTURAL_APPLICATION=OFF                                                                             \
+-DSTRUCTURAL_MECHANICS_APPLICATION=ON 					                                \
+-DSOLID_MECHANICS_APPLICATION=OFF                                                                        \
+-DCONVECTION_DIFFUSION_APPLICATION=OFF                                                                   \
+-DFLUID_DYNAMICS_APPLICATION=ON                                                                         \
+-DALE_APPLICATION=ON                                                                                    \
+-DFSI_APPLICATION=OFF                                                                                    \
+-DOPENCL_APPLICATION=OFF                                                                                \
+-DMIXED_ELEMENT_APPLICATION=OFF                                                                         \
+-DMKL_SOLVERS_APPLICATION=OFF                                                                           \
+-DDEM_APPLICATION=OFF                                                                                   \
+-DEMPIRE_APPLICATION=ON                                                                                \
+-DEXCLUDE_ITSOL=ON                                                                                      \
+-DMETIS_APPLICATION=XXX                                                                                  \
+-DPARMETIS_ROOT_DIR="${HOME}/software/ParMETIS/ParMetis-3.2.0"                                  \
+-DTRILINOS_APPLICATION=XXX                                                                               \
+-DTRILINOS_ROOT="${HOME}/software/Trilinos/trilinos-12.10.1-Source_install"                             \
+-DINCLUDE_PASTIX=OFF                                                                                     \
+-DSCOTCH_INSTALL_DIR="${HOME}/software/Scotch/scotch_6.0.4_install/lib"                                     \
+-DPASTIX_INSTALL_DIR="${HOME}/software/PaStiX/pastix_5.2.3/install"                                     \
+
+make -j6 install
