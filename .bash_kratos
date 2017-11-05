@@ -67,6 +67,10 @@ kratoscompilation() {
     fi 
     
     local base_dir=$(pwd)
+
+    if [ ! -f ${KRATOS_PATH_ENV}/configure_sh_general.txt ]; then
+        throwerror "No \"configure_sh_general.txt\" available!"
+    fi
     
     cp ${KRATOS_PATH_ENV}/configure_sh_general.txt ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
     
