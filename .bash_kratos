@@ -15,8 +15,12 @@ alias compilekratosmpifulldebug="kratoscompilation mpi fulldebug $1"
 setupkratosenv() {
     if [[ $# = 1 ]]; then
         if [[ -z "${KRATOS_PATH_ENV}" ]]; then
-            KRATOS_PATH_ENV=$1
-            export PYTHONPATH=$1:$PYTHONPATH
+            export KRATOS_PATH_ENV=$1
+            if [[ -z "${PYTHONPATH}" ]]; then # to avoid problems with empty PYTHONPATHSs
+                export PYTHONPATH=$1
+            else
+                export PYTHONPATH=$1:$PYTHONPATH
+            fi
             printinfo "Started Kratos $1"
         else
             throwerror "Kratos was already set at $KRATOS_PATH_ENV!"
