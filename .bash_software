@@ -37,14 +37,14 @@ alias pythonconsole="ipython3"
 alias startOpenMPIserver="ompi-server -r ~/.ompi_server.port && echo Started ompi server"
 
 alias connect_headphones="python3 ~/scripts/a2pd.py 04:5D:4B:16:56:EC"
+#https://gist.github.com/pylover/d68be364adac5f946887b85e6ed6e7ae
+#https://askubuntu.com/questions/910501/udev-rule-to-run-python-script/912838#912838
 
 alias startkratosmaster="setupkratosenv ~/software/Kratos_MasterBranch"
 alias startkratosdevelopment="setupkratosenv ~/software/Kratos_dev"
 alias startkratosaux="setupkratosenv ~/software/Kratos_aux"
 
 alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive"
-#https://gist.github.com/pylover/d68be364adac5f946887b85e6ed6e7ae
-#https://askubuntu.com/questions/910501/udev-rule-to-run-python-script/912838#912838
 
 
 runkratosvalgrind() {
