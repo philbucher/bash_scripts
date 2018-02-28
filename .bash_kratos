@@ -5,11 +5,14 @@ alias compilekratos="kratoscompilation serial release $1"
 alias compilekratosrelwdbg="kratoscompilation serial relwdbg $1"
 alias compilekratosdebug="kratoscompilation serial debug $1"
 alias compilekratosfulldebug="kratoscompilation serial fulldebug $1"
+alias compilekratossuperdebug="kratoscompilation serial superdebug $1"
 
 alias compilekratosmpi="kratoscompilation mpi release $1"
 alias compilekratosmpirelwdbg="kratoscompilation mpi relwdbg $1"
 alias compilekratosmpidebug="kratoscompilation mpi debug $1"
 alias compilekratosmpifulldebug="kratoscompilation mpi fulldebug $1"
+# the following is deactivated bcs it has problems with trilinos, see https://github.com/KratosMultiphysics/Kratos/issues/715
+#alias compilekratosmpisuperdebug="kratoscompilation mpi superdebug $1"
 
 
 setupkratosenv() {
@@ -29,8 +32,8 @@ setupkratosenv() {
     else
         echo "Please provide 1 argument only!"
         return 1
-    fi  
-} 
+    fi
+}
 export -f setupkratosenv
 
 
@@ -68,16 +71,16 @@ kratoscompilation() {
     if [[ $# < 2 ]]; then
         echo "Not enough input arguments"
         return 1
-    fi 
-    
+    fi
+
     local base_dir=$(pwd)
 
     if [ ! -f ${KRATOS_PATH_ENV}/configure_sh_general.txt ]; then
         throwerror "No \"configure_sh_general.txt\" available!"
     fi
-    
+
     cp ${KRATOS_PATH_ENV}/configure_sh_general.txt ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
-    
+
     if [[ $1 == "serial" ]]; then
         sed -i "s/-DMETIS_APPLICATION=XXX/-DMETIS_APPLICATION=OFF/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         sed -i "s/DTRILINOS_APPLICATION=XXX/DTRILINOS_APPLICATION=OFF/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
@@ -85,7 +88,7 @@ kratoscompilation() {
         sed -i "s/-DMETIS_APPLICATION=XXX/-DMETIS_APPLICATION=ON/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         sed -i "s/DTRILINOS_APPLICATION=XXX/DTRILINOS_APPLICATION=ON/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         startOpenMPI
-    else 
+    else
        echo "Input argument 1 - \"$1\" - not valid, choose \"serial\" or \"mpi\""
        exit 0
     fi
@@ -99,31 +102,36 @@ kratoscompilation() {
     elif [[ $2 == "fulldebug" ]]; then
         sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=FullDebug/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         local mode="FullDebug"
+    elif [[ $2 == "superdebug" ]]; then
+        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=FullDebug/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        # now adding the "SuperDebug" option (use carfully, see https://github.com/KratosMultiphysics/Kratos/issues/715)
+        sed -i "s/CMAKE_CXX_FLAGS}/CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        local mode="SuperDebug"
     elif [[ $2 == "relwdbg" ]]; then
         sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=RelWithDebInfo/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         local mode="RelWithDebInfo"
-    else 
-       echo "Input argument 2 - \"$2\" - not valid, choose \"release\", \"debug\", \"relwdbg\", \"fulldebug\""
+    else
+       echo "Input argument 2 - \"$2\" - not valid, choose \"release\", \"debug\", \"relwdbg\", \"fulldebug\", \"superdebug\""
        return 0
     fi
 
     local cmake_folder="cmake_build_$1_$2"
     eval local build_dir="${KRATOS_PATH_ENV}/$cmake_folder"
-    
+
     if [ ! -d "$build_dir" ]; then
         mkdir $build_dir
         printinfo "Build Directory $build_dir was created"
     fi
-    
+
     if [[ $3 == "clean" ]]; then
         printinfo "Performing clean compilation"
         rm -r "$build_dir"
-        mkdir "$build_dir" 
+        mkdir "$build_dir"
     fi
 
-    cd "$build_dir" &> /dev/null  
-    
-    cp ${KRATOS_PATH_ENV}/.configure_sh_temp.txt configure.sh  
+    cd "$build_dir" &> /dev/null
+
+    cp ${KRATOS_PATH_ENV}/.configure_sh_temp.txt configure.sh
     rm ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
 
     getactivebranch compiled_branch
@@ -131,28 +139,28 @@ kratoscompilation() {
     echo -e "compiling Kratos Path: \t\e[1;48;5;4m ${KRATOS_PATH_ENV} \e[0m"
     echo -n "compiling branch: "
     echo -e "\t\e[1;44m ${compiled_branch} \e[0m"
-    
+
     echo -n "compiling mode: "
     echo -e "\t\e[1;44m $1 \e[0m"
-    
+
     echo -n "compiling version: "
     echo -e "\t\e[1;44m ${mode} \e[0m \n"
-    
+
     startCMake
-    
-    deletekratoslibs    
-    
+
+    deletekratoslibs
+
     if \time -f%E -o ~/.tmp.txt sh configure.sh ; then
-        echo "${compiled_branch}" > ${KRATOS_PATH_ENV}/.kratoscompilation.info 
-        echo "$1" >> ${KRATOS_PATH_ENV}/.kratoscompilation.info 
-        echo "$mode" >> ${KRATOS_PATH_ENV}/.kratoscompilation.info 
+        echo "${compiled_branch}" > ${KRATOS_PATH_ENV}/.kratoscompilation.info
+        echo "$1" >> ${KRATOS_PATH_ENV}/.kratoscompilation.info
+        echo "$mode" >> ${KRATOS_PATH_ENV}/.kratoscompilation.info
         echo -e "\e[1;42m Compilation Successful \e[0m"
     else
         echo -e "\e[1;41m Compilation Failed \e[0m"
     fi
 
     cd $base_dir                    # switch back to original folder
-    
+
     local end_time=`date +%s`
     printtime start_time end_time
 }
@@ -171,18 +179,18 @@ runkratos() {
     if [[ $# = 0 ]]; then
         echo "No inputfile given"
         return 1
-        
+
     elif [[ $# = 1 ]]; then
-        if [[ $version == "mpi" ]]; then  
+        if [[ $version == "mpi" ]]; then
             printwarning "running serial Kratos with mpi compilation!"
         fi
         echo "===== SERIAL EXECUTION ====="
         sleep 2
         python3 $1
-        
+
         local end_time=`date +%s`
         printtime start_time end_time
-        
+
     elif [[ $# = 2 ]]; then
         if [[ $version == "serial" ]]; then
             throwerror "trying to run Kratos with serial compilation in MPI!"
@@ -192,10 +200,10 @@ runkratos() {
         startOpenMPI
         sleep 2
         mpiexec -np $2 python3 $1
-    
+
         local end_time=`date +%s`
         printtime start_time end_time
-    
+
      else
         echo "Too many input arguments given"
         return 1
@@ -234,7 +242,7 @@ checkbranch() {
 
     getactivebranch active_branch
     local compiled_branch="$(sed '1q;d' ${KRATOS_PATH_ENV}/.kratoscompilation.info)"
-    
+
     if [[ $active_branch != $compiled_branch ]]; then
         echo -e "\n\t Compiled branch: $compiled_branch"
         echo -e "\t Active branch: $active_branch"

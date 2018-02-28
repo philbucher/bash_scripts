@@ -25,7 +25,7 @@ alias ompgetthreads='echo "Using $OMP_NUM_THREADS OpenMP threads"'
 alias formulacollection='evince ~/Dropbox/utilities/FormulaCollection/formulaCollection.pdf &'
 
 alias gid13="~/software/GiD/gid13.0.2-x64/gid"
-alias gid13d="~/software/GiD/gid13.1.8d-x64/gid"
+alias gid13d="~/software/GiD/gid13.1.10d-x64/gid"
 
 alias salome="~/software/SALOME/SALOME-8.3.0-UB16.04/salome"
 alias salome_kratos_converter="python3 ~/software/SALOME_Kratos_Converter/converter_salome_kratos.py"
@@ -43,9 +43,14 @@ alias connect_headphones="python3 ~/scripts/a2pd.py 04:5D:4B:16:56:EC"
 alias startkratosmaster="setupkratosenv ~/software/Kratos_MasterBranch"
 alias startkratosdevelopment="setupkratosenv ~/software/Kratos_dev"
 alias startkratosaux="setupkratosenv ~/software/Kratos_aux"
+alias startkratosproduction="setupkratosenv ~/software/Kratos_prod"
 
 alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive"
 
+alias sourceMKL="source ~/intel/mkl/bin/mklvars.sh intel64 lp64"
+
+export PYTHONPATH="${PYTHONPATH}:${HOME}/software/SALOME_Kratos_Converter"
+export PYTHONPATH="${PYTHONPATH}:${HOME}/software/mdpa-manipulator"
 
 runkratosvalgrind() {
 # function to execute kratos in parallel with valgrind
@@ -61,7 +66,7 @@ runkratosvalgrind() {
         echo "with options: $valgrind_options"
         echo "Valgrind output written to \"$valgrind_out_file\""
         sleep 0.3
-        
+
         valgrind $valgrind_options python3 $1 2> $valgrind_out_file
 
     elif [[ $# = 2 ]]; then
@@ -71,19 +76,19 @@ runkratosvalgrind() {
         echo "with options: $valgrind_options"
         echo "Valgrind output written to \"$valgrind_out_file\""
         sleep 0.3
-        
+
         #MPIWRAP_DEBUG=[wrapper-args]                               \
         #LD_PRELOAD=$prefix/lib/valgrind/libmpiwrap-<platform>.so   \
         #mpirun [mpirun-args]                                       \
         #$prefix/bin/valgrind [valgrind-args]                       \
         #[application] [app-args]
-        
+
         #MPIWRAP_DEBUG=[wrapper-args]                                                                                  \
         LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so    \
         mpiexec -np $2                                                                                                \
         /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind  $valgrind_options                      \
-        python3 $1 2> $valgrind_out_file 
-        
+        python3 $1 2> $valgrind_out_file
+
     else
         echo "Wrong number of input arguments given"
         return 1
@@ -92,7 +97,7 @@ runkratosvalgrind() {
 
 
 # EMPIRE
-alias startEMPIRE=". ~/software/empire/EMPIRE-Core/etc/bashrc.sh ICC" 
+alias startEMPIRE=". ~/software/empire/EMPIRE-Core/etc/bashrc.sh ICC"
 
 runempirekratos() {
     # function to execute kratos serial or in parallel
@@ -103,7 +108,7 @@ runempirekratos() {
     if [[ $# = 0 ]]; then
         throwerror "No inputfile given"
     fi
-    
+
     local num_procs=1
     if [[ $# = 2 ]]; then
         num_procs = $2
@@ -120,12 +125,12 @@ runempireemperor() {
 
     if [[ $# = 0 ]]; then
         throwerror "No inputfile given"
-        
+
     elif [[ $# = 1 ]]; then
         mpiexec -np 1 --ompi-server file:/home/philippb/.ompi_server.port Emperor $1
         local end_time=`date +%s`
         printtime start_time end_time
-        
+
     else
         echo "Too many input arguments given"
         return 1
