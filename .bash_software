@@ -16,7 +16,7 @@ ompsetthreads() {
 }
 export -f ompsetthreads
 
-export OMP_NUM_THREADS=1 # setting the number of OMP threads to one on shell startup
+export OMP_NUM_THREADS=2 # setting the number of OMP threads to one on shell startup
 
 alias ompgetthreads='echo "Using $OMP_NUM_THREADS OpenMP threads"'
 
