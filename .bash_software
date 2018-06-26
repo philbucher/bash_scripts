@@ -16,7 +16,7 @@ ompsetthreads() {
 }
 export -f ompsetthreads
 
-export OMP_NUM_THREADS=1 # setting the number of OMP threads to one on shell startup
+export OMP_NUM_THREADS=2 # setting the number of OMP threads to one on shell startup
 
 alias ompgetthreads='echo "Using $OMP_NUM_THREADS OpenMP threads"'
 
@@ -24,11 +24,13 @@ alias ompgetthreads='echo "Using $OMP_NUM_THREADS OpenMP threads"'
 # Program aliases
 alias formulacollection='evince ~/Dropbox/utilities/FormulaCollection/formulaCollection.pdf &'
 
+alias vpn="/opt/cisco/anyconnect/bin/vpnui &> /dev/null"
+
 alias gid13="~/software/GiD/gid13.0.2-x64/gid"
-alias gid13d="~/software/GiD/gid13.1.10d-x64/gid"
+alias gid13d="~/software/GiD/gid13.1.11d-x64/gid"
 
 alias salome="~/software/SALOME/SALOME-8.3.0-UB16.04/salome"
-alias salome_kratos_converter="python3 ~/software/SALOME_Kratos_Converter/converter_salome_kratos.py"
+alias salome_kratos_converter="python3 ~/software/salome-kratos-converter/converter_salome_kratos.py"
 
 alias valgrind='~/software/Valgrind/valgrind-3.12.0_install/bin/valgrind'
 
@@ -51,6 +53,9 @@ alias sourceMKL="source ~/intel/mkl/bin/mklvars.sh intel64 lp64"
 
 export PYTHONPATH="${PYTHONPATH}:${HOME}/software/SALOME_Kratos_Converter"
 export PYTHONPATH="${PYTHONPATH}:${HOME}/software/mdpa-manipulator"
+
+#export SALOME_PLUGINS_PATH="${HOME}/.config/salome"
+export SALOME_PLUGINS_PATH="${HOME}/software/SALOME/salome-kratos-plugin"
 
 runkratosvalgrind() {
 # function to execute kratos in parallel with valgrind
@@ -100,7 +105,6 @@ runkratosvalgrind() {
 alias startEMPIRE=". ~/software/empire/EMPIRE-Core/etc/bashrc.sh ICC"
 
 runempirekratos() {
-    # function to execute kratos serial or in parallel
     checkforkratos
 
     local start_time=`date +%s`
@@ -137,3 +141,15 @@ runempireemperor() {
     fi
 }
 export -f runempireemperor
+
+gdbmpi() {
+    if [[ $# = 2 ]]; then
+        echo "===== gdb python3 mpi execution ====="
+        echo "with $2 processes"
+        mpiexec -np $2 xterm -hold -fa 'Monospace' -fs 12 -e gdb -ex run --args python3 $1
+     else
+        echo "Wrong number of inout arguments, use with input file and number of processors"
+        return 1
+     fi
+}
+export -f gdbmpi
