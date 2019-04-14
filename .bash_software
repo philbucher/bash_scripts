@@ -26,11 +26,15 @@ alias formulacollection='evince ~/Dropbox/utilities/FormulaCollection/formulaCol
 
 alias vpn="/opt/cisco/anyconnect/bin/vpnui &> /dev/null"
 
+alias mdpa_2_post="python3 ~/software/mdpa-manipulator/mdpa_2_post.py"
+
 alias gid13="~/software/GiD/gid13.0.2-x64/gid"
 alias gid13d="~/software/GiD/gid13.1.11d-x64/gid"
 
+alias paraview="~/software/paraview/ParaView-5.5.2-Qt5-MPI-Linux-64bit/bin/paraview"
+
 alias salome="~/software/SALOME/SALOME-8.3.0-UB16.04/salome"
-alias salome_kratos_converter="python3 ~/software/salome-kratos-converter/converter_salome_kratos.py"
+alias salome_kratos_converter="python3 ~/software/SALOME_Kratos_Converter/converter_salome_kratos.py"
 
 alias valgrind='~/software/Valgrind/valgrind-3.12.0_install/bin/valgrind'
 
@@ -38,24 +42,28 @@ alias pythonconsole="ipython3"
 
 alias startOpenMPIserver="ompi-server -r ~/.ompi_server.port && echo Started ompi server"
 
-alias connect_headphones="python3 ~/scripts/a2pd.py 04:5D:4B:16:56:EC"
+alias connect_headphones_old="python3 ~/scripts/a2pd.py 04:5D:4B:16:56:EC"
+alias connect_headphones="python3 ~/scripts/a2pd.py 70:26:05:56:57:4C"
 #https://gist.github.com/pylover/d68be364adac5f946887b85e6ed6e7ae
 #https://askubuntu.com/questions/910501/udev-rule-to-run-python-script/912838#912838
 
-alias startkratosmaster="setupkratosenv ~/software/Kratos_MasterBranch"
+alias startkratosmaster="setupkratosenv ~/software/Kratos_Master"
 alias startkratosdevelopment="setupkratosenv ~/software/Kratos_dev"
 alias startkratosaux="setupkratosenv ~/software/Kratos_aux"
 alias startkratosproduction="setupkratosenv ~/software/Kratos_prod"
 
-alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive"
+alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.hpp\" --options=/home/philippb/software/kratos.style --recursive"
 
 alias sourceMKL="source ~/intel/mkl/bin/mklvars.sh intel64 lp64"
 
 export PYTHONPATH="${PYTHONPATH}:${HOME}/software/SALOME_Kratos_Converter"
 export PYTHONPATH="${PYTHONPATH}:${HOME}/software/mdpa-manipulator"
+export PYTHONPATH="${PYTHONPATH}:${HOME}/software/WINSENT-modeling-scripts"
+export PYTHONPATH="${PYTHONPATH}:${HOME}/software/WINSENT-simulation-scripts"
+export SALOME_PLUGINS_PATH="${HOME}/software/salome-kratos-plugin2"
 
 #export SALOME_PLUGINS_PATH="${HOME}/.config/salome"
-export SALOME_PLUGINS_PATH="${HOME}/software/SALOME/salome-kratos-plugin"
+# export SALOME_PLUGINS_PATH="${HOME}/software/SALOME/salome-kratos-plugin"
 
 runkratosvalgrind() {
 # function to execute kratos in parallel with valgrind
@@ -92,7 +100,7 @@ runkratosvalgrind() {
         LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so    \
         mpiexec -np $2                                                                                                \
         /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind  $valgrind_options                      \
-        python3 $1 2> $valgrind_out_file
+        python3 $1 &> $valgrind_out_file
 
     else
         echo "Wrong number of input arguments given"
