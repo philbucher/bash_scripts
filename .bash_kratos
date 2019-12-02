@@ -64,6 +64,9 @@ deletekratoslibs() {
     if [ -f "$compilation_info" ]; then
         rm "$compilation_info"
     fi
+
+    find ${KRATOS_PATH_ENV} -name "*.pyc" -type f -delete
+    find ${KRATOS_PATH_ENV} -name "*.time" -type f -delete
 }
 export -f deletekratoslibs
 
