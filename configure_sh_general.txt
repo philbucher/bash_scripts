@@ -43,7 +43,6 @@ add_app ${KRATOS_APP_DIR}/HDF5Application
 # add_app ${KRATOS_APP_DIR}/ContactStructuralMechanicsApplication
 
 # Clean
-clear
 rm -rf "${KRATOS_BUILD}/cmake_install.cmake"
 rm -rf "${KRATOS_BUILD}/CMakeCache.txt"
 rm -rf "${KRATOS_BUILD}/CMakeFiles"
