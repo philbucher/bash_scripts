@@ -19,10 +19,17 @@ setupkratosenv() {
     if [[ $# = 1 ]]; then
         if [[ -z "${KRATOS_PATH_ENV}" ]]; then
             export KRATOS_PATH_ENV=$1
+
             if [[ -z "${PYTHONPATH}" ]]; then # to avoid problems with empty PYTHONPATHSs
-                export PYTHONPATH=$1
+                export PYTHONPATH=$1"/install"
             else
-                export PYTHONPATH=$1:$PYTHONPATH
+                export PYTHONPATH=$1"/install":$PYTHONPATH
+            fi
+
+            if [[ -z "${PYTHONPATH}" ]]; then # to avoid problems with empty LD_LIBRARY_PATHs
+                export LD_LIBRARY_PATH=$1"/install/libs"
+            else
+                export LD_LIBRARY_PATH=$1"/install/libs":$LD_LIBRARY_PATH
             fi
             printinfo "Started Kratos $1"
         else
@@ -49,14 +56,10 @@ deletekratoslibs() {
     checkforkratos
 
     echo -e "\e[1;43m Removing Kratos libraries ... \e[0m"
-    local libs_dir="${KRATOS_PATH_ENV}/libs"
-    local py_libs_dir="${KRATOS_PATH_ENV}/KratosMultiphysics"
+    local install_dir="${KRATOS_PATH_ENV}/install"
     local compilation_info="${KRATOS_PATH_ENV}/.kratoscompilation.info"
-    if [ -d "$libs_dir" ]; then
-        rm -r "$libs_dir"
-    fi
-    if [ -d "$py_libs_dir" ]; then
-        rm -r "$py_libs_dir"
+    if [ -d "$install_dir" ]; then
+        rm -r "$install_dir"
     fi
     if [ -f "$compilation_info" ]; then
         rm "$compilation_info"
@@ -76,6 +79,10 @@ kratoscompilation() {
 
     local base_dir=$(pwd)
 
+    export KRATOS_SOURCE=${KRATOS_PATH_ENV}
+    export KRATOS_APP_DIR="${KRATOS_SOURCE}/applications"
+    export KRATOS_APPLICATIONS=""
+
     if [ ! -f ${KRATOS_PATH_ENV}/configure_sh_general.txt ]; then
         throwerror "No \"configure_sh_general.txt\" available!"
     fi
@@ -83,11 +90,12 @@ kratoscompilation() {
     cp ${KRATOS_PATH_ENV}/configure_sh_general.txt ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
 
     if [[ $1 == "serial" ]]; then
-        sed -i "s/-DMETIS_APPLICATION=XXX/-DMETIS_APPLICATION=OFF/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
-        sed -i "s/DTRILINOS_APPLICATION=XXX/DTRILINOS_APPLICATION=OFF/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        echo "" # TODO find a better solution here
     elif [[ $1 == "mpi" ]]; then
-        sed -i "s/-DMETIS_APPLICATION=XXX/-DMETIS_APPLICATION=ON/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
-        sed -i "s/DTRILINOS_APPLICATION=XXX/DTRILINOS_APPLICATION=ON/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        echo ""
+        export KRATOS_APPLICATIONS="${KRATOS_APPLICATIONS}${KRATOS_APP_DIR}/MetisApplication;"
+        export KRATOS_APPLICATIONS="${KRATOS_APPLICATIONS}${KRATOS_APP_DIR}/TrilinosApplication;"
+        export KRATOS_CMAKE_OPTIONS_FLAGS="-DUSE_MPI=ON"
         startOpenMPI
     else
        echo "Input argument 1 - \"$1\" - not valid, choose \"serial\" or \"mpi\""
@@ -95,21 +103,21 @@ kratoscompilation() {
     fi
 
     if [[ $2 == "release" ]]; then
-        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=Release/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        export KRATOS_BUILD_TYPE="Release"
         local mode="Release"
     elif [[ $2 == "debug" ]]; then
-        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=Debug/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        export KRATOS_BUILD_TYPE="Debug"
         local mode="Debug"
     elif [[ $2 == "fulldebug" ]]; then
-        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=FullDebug/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        export KRATOS_BUILD_TYPE="FullDebug"
         local mode="FullDebug"
     elif [[ $2 == "superdebug" ]]; then
-        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=FullDebug/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        export KRATOS_BUILD_TYPE="FullDebug"
+        export KRATOS_CMAKE_CXX_FLAGS="-D_GLIBCXX_DEBUG"
         # now adding the "SuperDebug" option (use carfully, see https://github.com/KratosMultiphysics/Kratos/issues/715)
-        sed -i "s/CMAKE_CXX_FLAGS}/CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
         local mode="SuperDebug"
     elif [[ $2 == "relwdbg" ]]; then
-        sed -i "s/DCMAKE_BUILD_TYPE=XXX/DCMAKE_BUILD_TYPE=RelWithDebInfo/g" ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+        export KRATOS_BUILD_TYPE="RelWithDebInfo"
         local mode="RelWithDebInfo"
     else
        echo "Input argument 2 - \"$2\" - not valid, choose \"release\", \"debug\", \"relwdbg\", \"fulldebug\", \"superdebug\""
@@ -118,6 +126,7 @@ kratoscompilation() {
 
     local cmake_folder="cmake_build_$1_$2"
     eval local build_dir="${KRATOS_PATH_ENV}/$cmake_folder"
+    export KRATOS_BUILD=$build_dir
 
     if [ ! -d "$build_dir" ]; then
         mkdir $build_dir
