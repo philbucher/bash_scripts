@@ -1,48 +1,70 @@
-#!/bin/sh
-rm CMakeCache.txt
-rm *.cmake
-rm -rf CMakeFiles
+#!/bin/bash
+# Please do not modify this script
 
-cmake ..                                                                                                \
--DCMAKE_C_COMPILER=gcc                                                                                  \
--DCMAKE_CXX_COMPILER=g++                                                                                \
--DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -std=c++11 -march=native -ftree-vectorize -funroll-loops -ffast-math -Wall -Wno-unused-local-typedefs" \
--DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -march=native -funroll-loops -ffast-math -Wall -Wno-unused-local-typedefs" \
--DCMAKE_BUILD_TYPE=XXX                                                                       \
--DCMAKE_INSTALL_RPATH="${KRATOS_PATH_ENV}/libs"                                                    \
--DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE                                                                \
--DPYTHON_LIBRARY="/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/libpython3.5m.so"                     \
--DPYTHON_INCLUDE_DIR="/usr/include/python3.5"                                                           \
--DINSTALL_EMBEDDED_PYTHON=ON                                                                            \
--DBOOST_ROOT="${HOME}/software/boost/boost_1_61_0_install"                                              \
--DBLAS_LIBRARIES="/usr/lib/libblas/libblas.so"                                                          \
--DLAPACK_LIBRARIES="/usr/lib/lapack/liblapack.so"                                                       \
--DINCOMPRESSIBLE_FLUID_APPLICATION=OFF                                                                   \
--DCONTACT_STRUCTURAL_MECHANICS_APPLICATION=OFF                                                                   \
--DMESHING_APPLICATION=ON                                                                                \
--DEXTERNAL_SOLVERS_APPLICATION=ON                                                                       \
--DINCLUDE_FEAST=ON                                                                                      \
--DMAPPING_APPLICATION=ON                                                                                \
--DPFEM_APPLICATION=OFF                                                                                  \
--DSTRUCTURAL_APPLICATION=OFF                                                                             \
--DSTRUCTURAL_MECHANICS_APPLICATION=ON 					                                \
--DSOLID_MECHANICS_APPLICATION=OFF                                                                        \
--DCONVECTION_DIFFUSION_APPLICATION=OFF                                                                   \
--DFLUID_DYNAMICS_APPLICATION=ON                                                                         \
--DALE_APPLICATION=ON                                                                                    \
--DFSI_APPLICATION=OFF                                                                                    \
--DOPENCL_APPLICATION=OFF                                                                                \
--DMIXED_ELEMENT_APPLICATION=OFF                                                                         \
--DMKL_SOLVERS_APPLICATION=OFF                                                                           \
--DDEM_APPLICATION=OFF                                                                                   \
--DEMPIRE_APPLICATION=ON                                                                                \
--DEXCLUDE_ITSOL=ON                                                                                      \
--DMETIS_APPLICATION=XXX                                                                                  \
--DPARMETIS_ROOT_DIR="${HOME}/software/ParMETIS/ParMetis-3.2.0"                                  \
--DTRILINOS_APPLICATION=XXX                                                                               \
--DTRILINOS_ROOT="${HOME}/software/Trilinos/trilinos-12.10.1-Source_install"                             \
--DINCLUDE_PASTIX=OFF                                                                                     \
--DSCOTCH_INSTALL_DIR="${HOME}/software/Scotch/scotch_6.0.4_install/lib"                                     \
--DPASTIX_INSTALL_DIR="${HOME}/software/PaStiX/pastix_5.2.3/install"                                     \
+# You can use your interpreter of choice (bash, sh, zsh, ...)
 
-make -j6 install
+# For any question please contact with us in:
+#   - https://github.com/KratosMultiphysics/Kratos
+
+# Optional parameters:
+# You can find a list will all the compiation options in INSTALL.md or here:
+#   - https://github.com/KratosMultiphysics/Kratos/wiki/Compilation-options
+
+# Function to add apps
+add_app () {
+    export KRATOS_APPLICATIONS="${KRATOS_APPLICATIONS}$1;"
+}
+
+# Set compiler
+export CC=gcc
+export CXX=g++
+
+# Set variables
+export KRATOS_APP_DIR="${KRATOS_SOURCE}/applications"
+export BOOST_ROOT="${HOME}/software/boost/boost_1_61_0_install"
+export KRATOS_INSTALL_PYTHON_USING_LINKS=ON
+
+# Set basic configuration
+export PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE:-"/usr/bin/python3"}
+
+# Set applications to compile
+export KRATOS_APPLICATIONS=${KRATOS_APPLICATIONS}$1;
+add_app ${KRATOS_APP_DIR}/ExternalSolversApplication
+add_app ${KRATOS_APP_DIR}/EigenSolversApplication
+add_app ${KRATOS_APP_DIR}/StructuralMechanicsApplication
+add_app ${KRATOS_APP_DIR}/ParticleMechanicsApplication
+add_app ${KRATOS_APP_DIR}/FluidDynamicsApplication
+add_app ${KRATOS_APP_DIR}/DEMApplication
+add_app ${KRATOS_APP_DIR}/CoSimulationApplication
+add_app ${KRATOS_APP_DIR}/MappingApplication
+add_app ${KRATOS_APP_DIR}/MeshMovingApplication
+add_app ${KRATOS_APP_DIR}/HDF5Application
+# add_app ${KRATOS_APP_DIR}/MeshingApplication
+# add_app ${KRATOS_APP_DIR}/ContactStructuralMechanicsApplication
+
+# Clean
+clear
+rm -rf "${KRATOS_BUILD}/cmake_install.cmake"
+rm -rf "${KRATOS_BUILD}/CMakeCache.txt"
+rm -rf "${KRATOS_BUILD}/CMakeFiles"
+
+# Configure
+cmake -H"${KRATOS_SOURCE}" -B"${KRATOS_BUILD}" \
+-DKRATOS_BUILD_TESTING=ON \
+-DSTRUCTURAL_DISABLE_ADVANCED_CONSTITUTIVE_LAWS=OFF \
+${KRATOS_CMAKE_OPTIONS_FLAGS} \
+-DTRILINOS_ROOT="${HOME}/software/Trilinos/trilinos-12.10.1-Source_install" \
+-DTRILINOS_EXCLUDE_ML_SOLVER=OFF \
+-DTRILINOS_EXCLUDE_AMESOS_SOLVER=OFF \
+-DTRILINOS_EXCLUDE_AZTEC_SOLVER=OFF \
+-DUSE_METIS_5=OFF \
+-DPARMETIS_ROOT_DIR="${HOME}/software/ParMETIS/ParMetis-3.2.0" \
+-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} ${KRATOS_CMAKE_CXX_FLAGS} -std=c++11 -march=native -ftree-vectorize -funroll-loops -ffast-math -Wall -Wno-deprecated-declarations" \
+-DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -march=native -funroll-loops -ffast-math -Wall" \
+-DCMAKE_INSTALL_PREFIX="${KRATOS_SOURCE}/install" \
+-DEIGEN_ROOT="${HOME}/software/Eigen/eigen-eigen-5a0156e40feb" \
+-DUSE_EIGEN_MKL=OFF
+-DINCLUDE_FEAST=ON \
+
+# Buid
+cmake --build "${KRATOS_BUILD}" --target install -- -j4
