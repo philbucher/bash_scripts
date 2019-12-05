@@ -62,7 +62,7 @@ ${KRATOS_CMAKE_OPTIONS_FLAGS} \
 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -march=native -funroll-loops -ffast-math -Wall" \
 -DCMAKE_INSTALL_PREFIX="${KRATOS_SOURCE}/install" \
 -DEIGEN_ROOT="${HOME}/software/Eigen/eigen-eigen-5a0156e40feb" \
--DUSE_EIGEN_MKL=OFF
+-DUSE_EIGEN_MKL=OFF \
 -DINCLUDE_FEAST=ON \
 
 # Buid
