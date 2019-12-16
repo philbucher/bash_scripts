@@ -64,7 +64,7 @@ ${KRATOS_CMAKE_OPTIONS_FLAGS} \
 -DCMAKE_INSTALL_PREFIX="${KRATOS_SOURCE}/install" \
 -DEIGEN_ROOT="${HOME}/software/Eigen/eigen-eigen-5a0156e40feb" \
 -DUSE_EIGEN_MKL=OFF \
--DINCLUDE_FEAST=ON \
+-DINCLUDE_FEAST=ON
 
 # Buid
 cmake --build "${KRATOS_BUILD}" --target install -- -j4
