@@ -93,7 +93,7 @@ kratoscompilation() {
     cp ${KRATOS_PATH_ENV}/configure_sh_general.txt ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
 
     if [[ $1 == "serial" ]]; then
-        echo "" # TODO find a better solution here
+        export KRATOS_CMAKE_OPTIONS_FLAGS="-DUSE_MPI=OFF"
     elif [[ $1 == "mpi" ]]; then
         echo ""
         export KRATOS_APPLICATIONS="${KRATOS_APPLICATIONS}${KRATOS_APP_DIR}/MetisApplication;"
