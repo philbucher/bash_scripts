@@ -49,7 +49,6 @@ rm -rf "${KRATOS_BUILD}/CMakeFiles"
 
 # Configure
 cmake -H"${KRATOS_SOURCE}" -B"${KRATOS_BUILD}" \
--DCMAKE_INSTALL_MESSAGE=NEVER \
 -DKRATOS_BUILD_TESTING=ON \
 -DSTRUCTURAL_DISABLE_ADVANCED_CONSTITUTIVE_LAWS=OFF \
 ${KRATOS_CMAKE_OPTIONS_FLAGS} \
@@ -59,12 +58,11 @@ ${KRATOS_CMAKE_OPTIONS_FLAGS} \
 -DTRILINOS_EXCLUDE_AZTEC_SOLVER=OFF \
 -DUSE_METIS_5=OFF \
 -DPARMETIS_ROOT_DIR="${HOME}/software/ParMETIS/ParMetis-3.2.0" \
--DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} ${KRATOS_CMAKE_CXX_FLAGS} -std=c++11 -march=native -ftree-vectorize -funroll-loops -ffast-math -Wall -Wno-deprecated-declarations" \
--DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -march=native -funroll-loops -ffast-math -Wall" \
+-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} ${KRATOS_CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-deprecated-declarations" \
+-DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wall" \
 -DCMAKE_INSTALL_PREFIX="${KRATOS_SOURCE}/install" \
--DEIGEN_ROOT="${HOME}/software/Eigen/eigen-eigen-5a0156e40feb" \
 -DUSE_EIGEN_MKL=OFF \
--DINCLUDE_FEAST=ON
+-DUSE_EIGEN_FEAST=OFF
 
 # Buid
 cmake --build "${KRATOS_BUILD}" --target install -- -j4
