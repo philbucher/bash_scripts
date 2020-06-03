@@ -26,7 +26,7 @@ setupkratosenv() {
                 export PYTHONPATH=$1"/install":$PYTHONPATH
             fi
 
-            if [[ -z "${PYTHONPATH}" ]]; then # to avoid problems with empty LD_LIBRARY_PATHs
+            if [[ -z "${LD_LIBRARY_PATH}" ]]; then # to avoid problems with empty LD_LIBRARY_PATHs
                 export LD_LIBRARY_PATH=$1"/install/libs"
             else
                 export LD_LIBRARY_PATH=$1"/install/libs":$LD_LIBRARY_PATH
