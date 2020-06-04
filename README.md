@@ -1,12 +1,12 @@
-.bash_scripts
+bash_scripts
 
 
-add the following lines to .git/info/exclude
+add the following lines to `.git/info/exclude`
 
 ```
 cmake_build*
 install*
-configure_sh_general.txt
+configure_sh_general.sh
 .kratoscompilation.info
+.vscode/*
 ```
-`.vscode/*`

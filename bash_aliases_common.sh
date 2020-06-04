@@ -2,9 +2,9 @@
 # This file contains "convenience" aliases that I use across systems
 
 # This should go into the global .bash_aliases:
-# . ~/.bash_scripts/.bash_aliases_common
-# . ~/.bash_scripts/.bash_software
-# . ~/.bash_scripts/.bash_kratos
+# . ~/bash_scripts/bash_aliases_common.sh
+# . ~/bash_scripts/bash_software.sh
+# . ~/bash_scripts/bash_kratos.sh
 
 #******** overriding stuff from .bashrc****************************************
 # enlarge history
@@ -23,7 +23,3 @@ PROMPT_DIRTRIM=2 # show parent and current directory
 alias ..="cd .."
 alias ...="cd ../.."
 alias sort_size='du -sh * | sort -rh'
-
-
-
-
