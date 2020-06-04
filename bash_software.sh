@@ -1,3 +1,7 @@
+
+alias git_master_merges='git log --merges --first-parent master --pretty=format:"%H %<(10,trunc)%an %<(15)%ar %s"'
+
+
 export OMP_NUM_THREADS=2 # setting the number of OMP threads to one on shell startup
 
 ompsetthreads() {
