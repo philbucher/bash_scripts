@@ -87,11 +87,11 @@ kratoscompilation() {
     export KRATOS_APPLICATIONS=""
     export KRATOS_CMAKE_CXX_FLAGS=""
 
-    if [ ! -f ${KRATOS_PATH_ENV}/configure_sh_general.txt ]; then
-        throwerror "No \"configure_sh_general.txt\" available!"
+    if [ ! -f ${KRATOS_PATH_ENV}/kratos_configure_sh_general.sh ]; then
+        throwerror "No \"kratos_configure_sh_general.sh\" available!"
     fi
 
-    cp ${KRATOS_PATH_ENV}/configure_sh_general.txt ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
+    cp ${KRATOS_PATH_ENV}/kratos_configure_sh_general.sh ${KRATOS_PATH_ENV}/.configure_sh_temp.txt
 
     if [[ $1 == "serial" ]]; then
         export KRATOS_CMAKE_OPTIONS_FLAGS="-DUSE_MPI=OFF"
@@ -100,7 +100,6 @@ kratoscompilation() {
         export KRATOS_APPLICATIONS="${KRATOS_APPLICATIONS}${KRATOS_APP_DIR}/MetisApplication;"
         export KRATOS_APPLICATIONS="${KRATOS_APPLICATIONS}${KRATOS_APP_DIR}/TrilinosApplication;"
         export KRATOS_CMAKE_OPTIONS_FLAGS="-DUSE_MPI=ON"
-        startOpenMPI
     else
        echo "Input argument 1 - \"$1\" - not valid, choose \"serial\" or \"mpi\""
        exit 0
@@ -160,8 +159,6 @@ kratoscompilation() {
     echo -n "compiling version: "
     echo -e "\t\e[1;44m ${mode} \e[0m \n"
 
-    startCMake
-
     deletekratoslibs
 
     if \time -f%E -o ~/.tmp.txt sh configure.sh ; then
@@ -219,7 +216,7 @@ runkratosmpi() {
     checkbranch
 
     if [[ $# < 2 ]]; then
-        echo "Inputfile and number of processes have to be given"
+        echo "At least inputfile and number of processes have to be given"
         return 1
 
     else
@@ -237,7 +234,6 @@ runkratosmpi() {
         echo ""
         local omp_num_threads=$OMP_NUM_THREADS
         export OMP_NUM_THREADS=1
-        startOpenMPI
         sleep 2
 
         local start_time=`date +%s`
@@ -329,25 +325,45 @@ printtime() {
 }
 export -f printtime
 
-#=========================Cmake-3.6.0==========================================
-startCMake() {
-    source ~/software/CMake/setup.sh
-}
-export -f startCMake
-#alias startCMake="source /home/philippb/software/CMake/setup.sh"
+# runkratosvalgrind() {
+# # function to execute kratos in parallel with valgrind
 
-#===========================Kratos=============================================
-startOpenMPI_2_0_2() {
-    source ~/software/OpenMPI/setup_2.0.2.sh
-}
-export -f startOpenMPI_2_0_2
+#     checkforkratos
 
-startOpenMPI_1_10_7() {
-    source ~/software/OpenMPI/setup_1.10.7.sh
-}
-export -f startOpenMPI_1_10_7
+#     local valgrind_options="--leak-check=full --show-leak-kinds=all --track-origins=yes"
+#     eval local valgrind_out_file="valgrindout_$1.log"
 
-startOpenMPI() { # pointing to globally used installation
-    startOpenMPI_1_10_7
-}
-export -f startOpenMPI
+#     if [[ $# = 1 ]]; then
+#         echo "===== SERIAL EXECUTION ====="
+#         echo "===== VALGRIND ====="
+#         echo "with options: $valgrind_options"
+#         echo "Valgrind output written to \"$valgrind_out_file\""
+#         sleep 0.3
+
+#         valgrind $valgrind_options python3 $1 2> $valgrind_out_file
+
+#     elif [[ $# = 2 ]]; then
+#         echo "===== PARALLEL EXECUTION ====="
+#         echo "with $2 processes"
+#         echo "===== VALGRIND ====="
+#         echo "with options: $valgrind_options"
+#         echo "Valgrind output written to \"$valgrind_out_file\""
+#         sleep 0.3
+
+#         #MPIWRAP_DEBUG=[wrapper-args]                               \
+#         #LD_PRELOAD=$prefix/lib/valgrind/libmpiwrap-<platform>.so   \
+#         #mpirun [mpirun-args]                                       \
+#         #$prefix/bin/valgrind [valgrind-args]                       \
+#         #[application] [app-args]
+
+#         #MPIWRAP_DEBUG=[wrapper-args]                                                                                  \
+#         LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so    \
+#         mpiexec -np $2                                                                                                \
+#         /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind  $valgrind_options                      \
+#         python3 $1 &> $valgrind_out_file
+
+#     else
+#         echo "Wrong number of input arguments given"
+#         return 1
+#     fi
+# }

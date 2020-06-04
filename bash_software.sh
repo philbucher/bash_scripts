@@ -1,11 +1,4 @@
-# Philipp Bucher
-# This file contains aliases for other software
-
-# remove annoying warnings in terminal
-alias calculator='gnome-calculator &> /dev/null'
-alias gedit='gedit &> /dev/null'
-alias kate='kate &> /dev/null'
-alias virtualbox='virtualbox &> /dev/null'
+export OMP_NUM_THREADS=2 # setting the number of OMP threads to one on shell startup
 
 ompsetthreads() {
     if [[ $# = 0 ]]; then
@@ -16,150 +9,40 @@ ompsetthreads() {
 }
 export -f ompsetthreads
 
-export OMP_NUM_THREADS=2 # setting the number of OMP threads to one on shell startup
-
 alias ompgetthreads='echo "Using $OMP_NUM_THREADS OpenMP threads"'
 
-
-# Program aliases
-alias formulacollection='evince ~/Dropbox/utilities/FormulaCollection/formulaCollection.pdf &'
-
-alias git_master_merges='git log --merges --first-parent master --pretty=format:"%H %<(10,trunc)%an %<(15)%ar %s"'
-
-alias vpn="/opt/cisco/anyconnect/bin/vpnui &> /dev/null"
-
-alias mdpa_2_post="python3 ~/software/mdpa-manipulator/mdpa_2_post.py"
-
-alias gid13="~/software/GiD/gid13.0.2-x64/gid"
-alias gid13d="~/software/GiD/gid13.1.11d-x64/gid"
-
-alias paraview="~/software/paraview/ParaView-5.5.2-Qt5-MPI-Linux-64bit/bin/paraview"
-
-alias salome="~/software/SALOME/SALOME-8.3.0-UB16.04/salome"
-alias salome_kratos_converter="python3 ~/software/SALOME_Kratos_Converter/converter_salome_kratos.py"
-
-alias valgrind='~/software/Valgrind/valgrind-3.12.0_install/bin/valgrind'
-
-alias pythonconsole="ipython3"
-
-alias startOpenMPIserver="ompi-server -r ~/.ompi_server.port && echo Started ompi server"
-
-alias connect_headphones_old="python3 ~/scripts/a2pd.py 04:5D:4B:16:56:EC"
-alias connect_headphones="python3 ~/scripts/a2pd.py 70:26:05:56:57:4C"
-#https://gist.github.com/pylover/d68be364adac5f946887b85e6ed6e7ae
-#https://askubuntu.com/questions/910501/udev-rule-to-run-python-script/912838#912838
-
-alias startkratosmaster="setupkratosenv ~/software/Kratos_Master"
-alias startkratosdevelopment="setupkratosenv ~/software/Kratos_dev"
-alias startkratosaux="setupkratosenv ~/software/Kratos_aux"
-alias startkratosproduction="setupkratosenv ~/software/Kratos_prod"
-
-alias astyle_formatting="astyle \"*.h\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.cpp\" --options=/home/philippb/software/kratos.style --recursive ; astyle \"*.hpp\" --options=/home/philippb/software/kratos.style --recursive"
-
-alias sourceMKL="source ~/intel/mkl/bin/mklvars.sh intel64 lp64"
-
-export PYTHONPATH="${PYTHONPATH}:${HOME}/software/SALOME_Kratos_Converter"
-export PYTHONPATH="${PYTHONPATH}:${HOME}/software/mdpa-manipulator"
-export PYTHONPATH="${PYTHONPATH}:${HOME}/software/WINSENT-modeling-scripts"
-export PYTHONPATH="${PYTHONPATH}:${HOME}/software/WINSENT-simulation-scripts"
-export SALOME_PLUGINS_PATH="${HOME}/software/salome-kratos-plugin2"
-
-#export SALOME_PLUGINS_PATH="${HOME}/.config/salome"
-# export SALOME_PLUGINS_PATH="${HOME}/software/SALOME/salome-kratos-plugin"
-
-runkratosvalgrind() {
-# function to execute kratos in parallel with valgrind
-
-    checkforkratos
-
+runvalgrind() {
     local valgrind_options="--leak-check=full --show-leak-kinds=all --track-origins=yes"
     eval local valgrind_out_file="valgrindout_$1.log"
 
-    if [[ $# = 1 ]]; then
-        echo "===== SERIAL EXECUTION ====="
-        echo "===== VALGRIND ====="
-        echo "with options: $valgrind_options"
-        echo "Valgrind output written to \"$valgrind_out_file\""
-        sleep 0.3
+    echo "===== VALGRIND ====="
+    echo "Command: $1"
+    echo "with options: $valgrind_options"
+    echo "Valgrind output written to \"$valgrind_out_file\""
+    sleep 0.3
 
-        valgrind $valgrind_options python3 $1 2> $valgrind_out_file
+    valgrind $valgrind_options ./$1  "${@:2}" 2> $valgrind_out_file # passing all the arguments 
+}
 
-    elif [[ $# = 2 ]]; then
-        echo "===== PARALLEL EXECUTION ====="
-        echo "with $2 processes"
-        echo "===== VALGRIND ====="
-        echo "with options: $valgrind_options"
-        echo "Valgrind output written to \"$valgrind_out_file\""
-        sleep 0.3
-
-        #MPIWRAP_DEBUG=[wrapper-args]                               \
-        #LD_PRELOAD=$prefix/lib/valgrind/libmpiwrap-<platform>.so   \
-        #mpirun [mpirun-args]                                       \
-        #$prefix/bin/valgrind [valgrind-args]                       \
-        #[application] [app-args]
-
-        #MPIWRAP_DEBUG=[wrapper-args]                                                                                  \
-        LD_PRELOAD=/home/philippb/software/Valgrind/valgrind-3.12.0_install/lib/valgrind/libmpiwrap-amd64-linux.so    \
-        mpiexec -np $2                                                                                                \
-        /home/philippb/software/Valgrind/valgrind-3.12.0_install/bin/valgrind  $valgrind_options                      \
-        python3 $1 &> $valgrind_out_file
-
-    else
-        echo "Wrong number of input arguments given"
+gdbmpipython3() {
+    if [[ $# < 2 ]]; then
+        echo "At least inputfile and number of processes have to be given"
         return 1
-    fi
-}
-
-
-# EMPIRE
-alias startEMPIRE=". ~/software/empire/EMPIRE-Core/etc/bashrc.sh ICC"
-
-runempirekratos() {
-    checkforkratos
-
-    local start_time=`date +%s`
-
-    if [[ $# = 0 ]]; then
-        throwerror "No inputfile given"
-    fi
-
-    local num_procs=1
-    if [[ $# = 2 ]]; then
-        num_procs = $2
-    fi
-    sleep 1 # needed such that Emperor can start its stuff
-    mpiexec -np $num_procs --ompi-server file:/home/philippb/.ompi_server.port python3 $1
-    local end_time=`date +%s`
-    printtime start_time end_time
-}
-export -f runempirekratos
-
-runempireemperor() {
-    local start_time=`date +%s`
-
-    if [[ $# = 0 ]]; then
-        throwerror "No inputfile given"
-
-    elif [[ $# = 1 ]]; then
-        mpiexec -np 1 --ompi-server file:/home/philippb/.ompi_server.port Emperor $1
-        local end_time=`date +%s`
-        printtime start_time end_time
-
     else
-        echo "Too many input arguments given"
-        return 1
-    fi
-}
-export -f runempireemperor
+        if ! [[ $2 =~ ^[0-9]+$ ]] # checking if the second argument is an integer
+            then
+                throwerror "the second argument has to be the number of processes"
+        fi
 
-gdbmpi() {
-    if [[ $# = 2 ]]; then
         echo "===== gdb python3 mpi execution ====="
         echo "with $2 processes"
-        mpiexec -np $2 xterm -hold -fa 'Monospace' -fs 12 -e gdb -ex run --args python3 $1
-     else
-        echo "Wrong number of inout arguments, use with input file and number of processors"
-        return 1
-     fi
+
+        local omp_num_threads=$OMP_NUM_THREADS
+        export OMP_NUM_THREADS=1
+
+        mpiexec -np $2 xterm -hold -fa 'Monospace' -fs 12 -e gdb -ex run --args python3 $1 "${@:3}" # passing all the arguments
+
+        export OMP_NUM_THREADS=$omp_num_threads
+    fi
 }
-export -f gdbmpi
+export -f gdbmpipython3
