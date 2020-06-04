@@ -1,14 +1,8 @@
 #!/bin/bash
-# Please do not modify this script
+# Custom script to be used in combination with "https://github.com/philbucher/bash_scripts"
 
-# You can use your interpreter of choice (bash, sh, zsh, ...)
-
-# For any question please contact with us in:
-#   - https://github.com/KratosMultiphysics/Kratos
-
-# Optional parameters:
-# You can find a list will all the compiation options in INSTALL.md or here:
-#   - https://github.com/KratosMultiphysics/Kratos/wiki/Compilation-options
+use_clang=OFF
+use_cotire=OFF
 
 # Function to add apps
 add_app () {
@@ -16,12 +10,19 @@ add_app () {
 }
 
 # Set compiler
-export CC=gcc
-export CXX=g++
+if [ "$use_clang" = ON ] ; then
+    echo 'Using CLANG'
+    export CC=clang
+    export CXX=clang++
+else
+    echo 'Using GCC'
+    export CC=gcc
+    export CXX=g++
+fi
 
 # Set variables
 export KRATOS_APP_DIR="${KRATOS_SOURCE}/applications"
-export BOOST_ROOT="${HOME}/software/boost/boost_1_61_0_install"
+export BOOST_ROOT="${HOME}/software/boost/boost_1_73_0"
 export KRATOS_INSTALL_PYTHON_USING_LINKS=ON
 
 # Set basic configuration
@@ -49,20 +50,27 @@ rm -rf "${KRATOS_BUILD}/CMakeFiles"
 
 # Configure
 cmake -H"${KRATOS_SOURCE}" -B"${KRATOS_BUILD}" \
--DKRATOS_BUILD_TESTING=ON \
--DSTRUCTURAL_DISABLE_ADVANCED_CONSTITUTIVE_LAWS=OFF \
 ${KRATOS_CMAKE_OPTIONS_FLAGS} \
--DTRILINOS_ROOT="${HOME}/software/Trilinos/trilinos-12.10.1-Source_install" \
--DTRILINOS_EXCLUDE_ML_SOLVER=OFF \
--DTRILINOS_EXCLUDE_AMESOS_SOLVER=OFF \
--DTRILINOS_EXCLUDE_AZTEC_SOLVER=OFF \
--DUSE_METIS_5=OFF \
--DPARMETIS_ROOT_DIR="${HOME}/software/ParMETIS/ParMetis-3.2.0" \
+-DUSE_COTIRE=$use_cotire \
 -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} ${KRATOS_CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-deprecated-declarations" \
 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wall" \
 -DCMAKE_INSTALL_PREFIX="${KRATOS_SOURCE}/install" \
+-DKRATOS_BUILD_TESTING=ON \
+-DSTRUCTURAL_DISABLE_ADVANCED_CONSTITUTIVE_LAWS=OFF \
+-DTRILINOS_EXCLUDE_ML_SOLVER=OFF \
+-DTRILINOS_EXCLUDE_AMESOS_SOLVER=OFF \
+-DTRILINOS_EXCLUDE_AZTEC_SOLVER=OFF \
 -DUSE_EIGEN_MKL=OFF \
--DUSE_EIGEN_FEAST=OFF
+-DUSE_EIGEN_FEAST=OFF 
 
-# Buid
-cmake --build "${KRATOS_BUILD}" --target install -- -j4
+# Build
+if [ "$use_cotire" = ON ] ; then
+    echo 'Using Cotire'
+    cmake --build "${KRATOS_BUILD}" --target all_unity    -- -j16 &&\
+    cmake --build "${KRATOS_BUILD}" --target install/fast -- -j16
+else
+    echo 'Not using Cotire'
+    cmake --build "${KRATOS_BUILD}" --target install -- -j16
+fi
+
+
