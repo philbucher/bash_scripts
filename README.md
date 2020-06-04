@@ -5,7 +5,7 @@ add the following lines to `.git/info/exclude`
 ```
 cmake_build*
 install*
-configure_sh_general.sh
+kratos_configure_sh_general.sh
 .kratoscompilation.info
 .vscode/*
 ```
