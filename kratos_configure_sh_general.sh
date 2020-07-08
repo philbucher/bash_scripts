@@ -30,8 +30,7 @@ export PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE:-"/usr/bin/python3"}
 
 # Set applications to compile
 export KRATOS_APPLICATIONS=${KRATOS_APPLICATIONS}$1;
-add_app ${KRATOS_APP_DIR}/ExternalSolversApplication
-add_app ${KRATOS_APP_DIR}/EigenSolversApplication
+add_app ${KRATOS_APP_DIR}/LinearSolversApplication
 add_app ${KRATOS_APP_DIR}/StructuralMechanicsApplication
 add_app ${KRATOS_APP_DIR}/ParticleMechanicsApplication
 add_app ${KRATOS_APP_DIR}/FluidDynamicsApplication
