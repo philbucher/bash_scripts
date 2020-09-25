@@ -3,7 +3,7 @@ Bash scripts for consistent & convenient use of Kratos and other software across
 In order to use the files, they only need to be executed. The recommended and consistent way to do so is to add it to `~/.bashrc` or `~/.bash_aliases` like this:
 `. ~/bash_scripts/bash_kratos.sh`
 
-The following three files are provided:
+The following files are provided:
 - `bash_aliases_common.sh` : Contains useful aliases, e.g.:
     - `ll`: display the file sizes in readable format
     - `sort_size`: display files and folders ordered by size in the current directory
