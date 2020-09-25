@@ -1,6 +1,6 @@
+# Philipp Bucher, part of "bash scripts"
 
 alias git_master_merges='git log --merges --first-parent master --pretty=format:"%H %<(10,trunc)%an %<(15)%ar %s"'
-
 
 export OMP_NUM_THREADS=2 # setting the number of OMP threads to one on shell startup
 
@@ -25,7 +25,7 @@ runvalgrind() {
     echo "Valgrind output written to \"$valgrind_out_file\""
     sleep 0.3
 
-    valgrind $valgrind_options ./$1  "${@:2}" 2> $valgrind_out_file # passing all the arguments 
+    valgrind $valgrind_options ./$1  "${@:2}" 2> $valgrind_out_file # passing all the arguments
 }
 
 gdbmpipython3() {

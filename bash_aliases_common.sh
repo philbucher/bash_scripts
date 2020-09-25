@@ -1,10 +1,7 @@
 # Philipp Bucher
 # This file contains "convenience" aliases that I use across systems
 
-# This should go into the global .bash_aliases:
-# . ~/bash_scripts/bash_aliases_common.sh
-# . ~/bash_scripts/bash_software.sh
-# . ~/bash_scripts/bash_kratos.sh
+# Philipp Bucher, part of "bash scripts"
 
 #******** overriding stuff from .bashrc****************************************
 # enlarge history

@@ -1,15 +1,14 @@
-# Philipp Bucher
-# This file contains functions used in combination with Kratos
+# Philipp Bucher, part of "bash scripts"
 
 alias compilekratos="kratoscompilation serial release $1"
 alias compilekratosrelwdbg="kratoscompilation serial relwdbg $1"
-alias compilekratosdebug="kratoscompilation serial debug $1"
+# alias compilekratosdebug="kratoscompilation serial debug $1" # usually not used
 alias compilekratosfulldebug="kratoscompilation serial fulldebug $1"
 alias compilekratossuperdebug="kratoscompilation serial superdebug $1"
 
 alias compilekratosmpi="kratoscompilation mpi release $1"
 alias compilekratosmpirelwdbg="kratoscompilation mpi relwdbg $1"
-alias compilekratosmpidebug="kratoscompilation mpi debug $1"
+# alias compilekratosmpidebug="kratoscompilation mpi debug $1" # usually not used
 alias compilekratosmpifulldebug="kratoscompilation mpi fulldebug $1"
 # the following is deactivated bcs it has problems with trilinos, see https://github.com/KratosMultiphysics/Kratos/issues/715
 #alias compilekratosmpisuperdebug="kratoscompilation mpi superdebug $1"
