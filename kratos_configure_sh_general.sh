@@ -68,11 +68,11 @@ ${KRATOS_CMAKE_OPTIONS_FLAGS} \
 # Build
 if [ "$use_cotire" = ON ] ; then
     echo 'Using Cotire'
-    cmake --build "${KRATOS_BUILD}" --target all_unity    -- -j16 &&\
-    cmake --build "${KRATOS_BUILD}" --target install/fast -- -j16
+    cmake --build "${KRATOS_BUILD}" --target all_unity    -- -j$(nproc) &&\
+    cmake --build "${KRATOS_BUILD}" --target install/fast -- -j$(nproc)
 else
     echo 'Not using Cotire'
-    cmake --build "${KRATOS_BUILD}" --target install -- -j16
+    cmake --build "${KRATOS_BUILD}" --target install -- -j$(nproc)
 fi
 
 
