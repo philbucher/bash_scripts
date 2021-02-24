@@ -11,11 +11,11 @@ add_app () {
 
 # Set compiler
 if [ "$use_clang" = ON ] ; then
-    echo 'Using CLANG'
+    echo '\e[1;48;5;57m Using CLANG \e[0m'
     export CC=clang
     export CXX=clang++
 else
-    echo 'Using GCC'
+    echo '\e[1;48;5;57m Using GCC \e[0m'
     export CC=gcc
     export CXX=g++
 fi
@@ -67,11 +67,11 @@ ${KRATOS_CMAKE_OPTIONS_FLAGS} \
 
 # Build
 if [ "$use_cotire" = ON ] ; then
-    echo 'Using Cotire'
+    echo '\e[1;48;5;57m Using Cotire \e[0m'
     cmake --build "${KRATOS_BUILD}" --target all_unity    -- -j$(nproc) &&\
     cmake --build "${KRATOS_BUILD}" --target install/fast -- -j$(nproc)
 else
-    echo 'Not using Cotire'
+    echo '\e[1;48;5;57m Not using Cotire \e[0m'
     cmake --build "${KRATOS_BUILD}" --target install -- -j$(nproc)
 fi
 
