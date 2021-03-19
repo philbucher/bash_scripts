@@ -1,9 +1,9 @@
 #!/bin/bash
 # Custom script to be used in combination with "https://github.com/philbucher/bash_scripts"
 
-# compiler="GCC"
+compiler="GCC"
 # compiler="CLANG"
-compiler="ICC"
+# compiler="ICC"
 use_unity_build=OFF
 
 # Function to add apps
@@ -28,6 +28,8 @@ else
     echo 'Unsupported compiler: $compiler'
     exit 1
 fi
+
+echo '\e[1;48;5;57m Using unity build:' $use_unity_build  '\e[0m'
 
 # Set variables
 export KRATOS_APP_DIR="${KRATOS_SOURCE}/applications"
@@ -75,3 +77,5 @@ ${KRATOS_CMAKE_OPTIONS_FLAGS} \
 
 # Build
 cmake --build "${KRATOS_BUILD}" --target install -- -j$(nproc)
+
+
