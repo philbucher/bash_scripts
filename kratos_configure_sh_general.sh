@@ -1,8 +1,10 @@
 #!/bin/bash
 # Custom script to be used in combination with "https://github.com/philbucher/bash_scripts"
 
-use_clang=OFF
-use_cotire=OFF
+compiler="GCC"
+# compiler="CLANG"
+# compiler="ICC"
+use_unity_build=ON
 
 # Function to add apps
 add_app () {
@@ -10,19 +12,29 @@ add_app () {
 }
 
 # Set compiler
-if [ "$use_clang" = ON ] ; then
-    echo 'Using CLANG'
-    export CC=clang
-    export CXX=clang++
-else
-    echo 'Using GCC'
+if [ "$compiler" = GCC ] ; then
+    echo '\e[1;48;5;57m Using GCC \e[0m'
     export CC=gcc
     export CXX=g++
+elif [ "$compiler" = CLANG ] ; then
+    echo '\e[1;48;5;57m Using CLANG \e[0m'
+    export CC=clang
+    export CXX=clang++
+elif [ "$compiler" = ICC ] ; then
+    echo '\e[1;48;5;57m Using INTEL \e[0m'
+    export CC=icc
+    export CXX=icpc
+else
+    echo 'Unsupported compiler: $compiler'
+    exit 1
 fi
+
+
+echo '\e[1;48;5;57m Using unity build:' $use_unity_build  '\e[0m'
 
 # Set variables
 export KRATOS_APP_DIR="${KRATOS_SOURCE}/applications"
-export BOOST_ROOT="${HOME}/software/boost/boost_1_73_0"
+export BOOST_ROOT="${HOME}/software/boost/boost_1_74_0"
 export KRATOS_INSTALL_PYTHON_USING_LINKS=ON
 
 # Set basic configuration
@@ -50,12 +62,11 @@ rm -rf "${KRATOS_BUILD}/CMakeFiles"
 # Configure
 cmake -H"${KRATOS_SOURCE}" -B"${KRATOS_BUILD}" \
 ${KRATOS_CMAKE_OPTIONS_FLAGS} \
--DUSE_COTIRE=$use_cotire \
+-DCMAKE_UNITY_BUILD=$use_unity_build \
 -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} ${KRATOS_CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-deprecated-declarations" \
 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wall" \
 -DCMAKE_INSTALL_PREFIX="${KRATOS_SOURCE}/install" \
 -DKRATOS_BUILD_TESTING=ON \
--DSTRUCTURAL_DISABLE_ADVANCED_CONSTITUTIVE_LAWS=OFF \
 -DTRILINOS_INCLUDE_DIR="/usr/include/trilinos" \
 -DTRILINOS_LIBRARY_DIR="/usr/lib/x86_64-linux-gnu" \
 -DTRILINOS_LIBRARY_PREFIX="trilinos_" \
@@ -63,16 +74,9 @@ ${KRATOS_CMAKE_OPTIONS_FLAGS} \
 -DTRILINOS_EXCLUDE_AMESOS_SOLVER=OFF \
 -DTRILINOS_EXCLUDE_AZTEC_SOLVER=OFF \
 -DUSE_EIGEN_MKL=OFF \
--DUSE_EIGEN_FEAST=OFF 
+-DUSE_EIGEN_FEAST=OFF
 
 # Build
-if [ "$use_cotire" = ON ] ; then
-    echo 'Using Cotire'
-    cmake --build "${KRATOS_BUILD}" --target all_unity    -- -j16 &&\
-    cmake --build "${KRATOS_BUILD}" --target install/fast -- -j16
-else
-    echo 'Not using Cotire'
-    cmake --build "${KRATOS_BUILD}" --target install -- -j16
-fi
+cmake --build "${KRATOS_BUILD}" --target install -- -j$(nproc)
 
 
