@@ -6,11 +6,6 @@ compiler="GCC"
 # compiler="ICC"
 use_unity_build=OFF
 
-# Function to add apps
-add_app () {
-    export KRATOS_APPLICATIONS="${KRATOS_APPLICATIONS}$1;"
-}
-
 # Set compiler
 if [ "$compiler" = GCC ] ; then
     export CC=gcc
@@ -28,6 +23,11 @@ fi
 
 echo '\e[1;48;5;57m Using compiler:' $compiler  '\e[0m'
 echo '\e[1;48;5;57m Using unity build:' $use_unity_build  '\e[0m'
+
+# Function to add apps
+add_app () {
+    export KRATOS_APPLICATIONS="${KRATOS_APPLICATIONS}$1;"
+}
 
 # Set variables
 export KRATOS_APP_DIR="${KRATOS_SOURCE}/applications"
