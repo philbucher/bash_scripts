@@ -13,22 +13,20 @@ add_app () {
 
 # Set compiler
 if [ "$compiler" = GCC ] ; then
-    echo '\e[1;48;5;57m Using GCC \e[0m'
     export CC=gcc
     export CXX=g++
 elif [ "$compiler" = CLANG ] ; then
-    echo '\e[1;48;5;57m Using CLANG \e[0m'
     export CC=clang
     export CXX=clang++
 elif [ "$compiler" = ICC ] ; then
-    echo '\e[1;48;5;57m Using INTEL \e[0m'
     export CC=icc
     export CXX=icpc
 else
-    echo 'Unsupported compiler: $compiler'
+    echo 'Unsupported compiler:' $compiler
     exit 1
 fi
 
+echo '\e[1;48;5;57m Using compiler:' $compiler  '\e[0m'
 echo '\e[1;48;5;57m Using unity build:' $use_unity_build  '\e[0m'
 
 # Set variables
