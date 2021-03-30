@@ -8,11 +8,11 @@ use_unity_build=OFF
 
 # Set compiler
 if [ "$compiler" = GCC ] ; then
-    export CC=gcc
-    export CXX=g++
+    export CC=/usr/bin/gcc
+    export CXX=/usr/bin/g++
 elif [ "$compiler" = CLANG ] ; then
-    export CC=clang
-    export CXX=clang++
+    export CC=/usr/bin/clang
+    export CXX=/usr/bin/clang++
 elif [ "$compiler" = ICC ] ; then
     export CC=icc
     export CXX=icpc
