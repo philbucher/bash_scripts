@@ -249,7 +249,7 @@ runkratosmpi() {
 
         local start_time=`date +%s`
 
-        mpiexec -np $2 python3 $1 --using-mpi "${@:3}" # passing all the arguments
+        mpiexec -np $2 python3 $1 --using-mpi "${@:3}" | tee -a $1.log # passing all the arguments
 
         local end_time=`date +%s`
         printtime start_time end_time
