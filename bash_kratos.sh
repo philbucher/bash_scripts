@@ -199,10 +199,17 @@ runkratos() {
 
         local start_time=`date +%s`
 
-        python3 "$@" # passing all the arguments
+        echo "Logfile for running serial Kratos" > $1.log
+        echo "Start date: `date`" >> $1.log
+        echo >> $1.log # add newline
+
+        python3 "$@" | tee -a $1.log # passing all the arguments
 
         local end_time=`date +%s`
         printtime start_time end_time
+
+        echo >> $1.log # add newline
+        echo "End date: `date`" >> $1.log
     fi
 }
 export -f runkratos
