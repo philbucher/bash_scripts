@@ -193,10 +193,6 @@ runkratos() {
             printwarning "running serial Kratos with mpi compilation!"
         fi
 
-        echo "Logfile for running serial Kratos" > $1.log
-        echo "Start date: `date`" >> $1.log
-        echo >> $1.log # add newline
-
         echo "===== SERIAL EXECUTION ====="
         ompgetthreads
         echo ""
@@ -204,13 +200,10 @@ runkratos() {
 
         local start_time=`date +%s`
 
-        python3 "$@" | tee -a $1.log # passing all the arguments
+        python3 "$@" # passing all the arguments
 
         local end_time=`date +%s`
         printtime start_time end_time
-
-        echo >> $1.log # add newline
-        echo "End date: `date`" >> $1.log
     fi
 }
 export -f runkratos
@@ -236,10 +229,6 @@ runkratosmpi() {
                 throwerror "the second argument has to be the number of processes"
         fi
 
-        echo "Logfile for running distributed Kratos" > $1.log
-        echo "Start date: `date`" >> $1.log
-        echo >> $1.log # add newline
-
         echo "===== PARALLEL EXECUTION ====="
         echo "with $2 processes (and setting OMP_NUM_THREADS=1)"
         echo ""
@@ -249,14 +238,11 @@ runkratosmpi() {
 
         local start_time=`date +%s`
 
-        mpiexec -np $2 python3 $1 --using-mpi "${@:3}" | tee -a $1.log # passing all the arguments
+        mpiexec -np $2 python3 $1 --using-mpi "${@:3}" # passing all the arguments
 
         local end_time=`date +%s`
         printtime start_time end_time
         export OMP_NUM_THREADS=$omp_num_threads
-
-        echo >> $1.log # add newline
-        echo "End date: `date`" >> $1.log
      fi
 }
 export -f runkratosmpi
