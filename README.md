@@ -39,3 +39,4 @@ The following files are provided:
 
 Other helpful commands:
 - silence output from programs run in terminal: e.g.: `alias virtualbox='virtualbox &> /dev/null'`
+- piping all output to file: `runkratos MainKraots.py |& tee kratos.log`. Note that this might introduce some delayed writing due to buffering.
