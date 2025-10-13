@@ -3,7 +3,18 @@
 alias git_master_merges='git log --first-parent master --pretty=format:"%H %<(10,trunc)%an %<(15)%ar %s"'
 
 gitDeleteAllOtherBranches() {
+    git fetch --prune
     git branch -D `git branch | grep -v \* | xargs`
+}
+
+gitMergeMain() {
+    git fetch --prune
+    git merge $(git symbolic-ref refs/remotes/origin/HEAD --short)
+}
+
+gitResetMain() {
+    git fetch --prune
+    git reset --soft $(git symbolic-ref refs/remotes/origin/HEAD --short)
 }
 
 export OMP_NUM_THREADS=2 # setting the number of OMP threads to one on shell startup
